@@ -7,7 +7,6 @@
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishSingleFile>true</PublishSingleFile>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-        <UserSecretsId>dotnet-Metal.Heaven.Integration.Host-13F2D137-18AF-4B61-A2BA-EBAF036A2C5B</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
