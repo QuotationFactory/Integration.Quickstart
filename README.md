@@ -1,4 +1,4 @@
-# Rhodium24 Agent Integration Quickstart
+# Rhodium24 Basic Integration Quickstart
 
 ## Introduction
 
