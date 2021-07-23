@@ -1,0 +1,4 @@
+<Project>
+  <Import Project="PackageManagement.targets" />
+  <Import Project="PackageReferenceToProjectReference.targets" />
+</Project>

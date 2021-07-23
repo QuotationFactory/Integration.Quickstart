@@ -1,0 +1,11 @@
+﻿{
+  "profiles": {
+    "Metal.Heaven.Integration.Host": {
+      "commandName": "Project",
+      "dotnetRunMessages": "true",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

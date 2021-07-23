@@ -1,0 +1,7 @@
+<Project>
+  <ItemGroup>
+    <PackageReference Update="@(PackageManagement)" ProjectPath="%(PackageManagement.Project)" />
+    <ProjectReference Include="@(PackageReference->Distinct()->'%(ProjectPath)')" />
+    <PackageReference Remove="@(PackageReference->HasMetadata('ProjectPath'))" />
+  </ItemGroup>
+</Project>

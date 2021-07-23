@@ -1,0 +1,8 @@
+<Project>
+  <Import Project="Dependencies.props" />
+
+  <PropertyGroup>
+    <PublishUrl Condition="'$(PublishBaseUrl)' != '' and '$(PublishUrl)' == ''">$(PublishBaseUrl)\$(MSBuildProjectName)\</PublishUrl>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+</Project>

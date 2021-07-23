@@ -1,0 +1,27 @@
+<Project>
+
+  <Target Name="ApplyPackageManagement" BeforeTargets="CollectPackageReferences" DependsOnTargets="ApplyPackageManagementItems" />
+
+  <Target Name="ApplyPackageManagementItems" Inputs="@(PackageManagement)" Outputs="%(PackageManagement.Identity)">
+    <PropertyGroup>
+      <_PackageManagementIdentity>%(PackageManagement.Identity)</_PackageManagementIdentity>
+      <_PackageManagementVersion>%(PackageManagement.Version)</_PackageManagementVersion>
+    </PropertyGroup>
+    <Warning Condition=" '%(PackageReference.Identity)' == '$(_PackageManagementIdentity)' and '%(PackageReference.Version)' == '$(_PackageManagementVersion)' " Code="MH1602" Text="PackageReference %(PackageReference.Identity)@%(PackageReference.Version) Version attribute is not needed" File="$(MSBuildProjectFullPath)" />
+    <Warning Condition=" '%(PackageReference.Identity)' == '$(_PackageManagementIdentity)' and '%(PackageReference.Version)' != '' and '%(PackageReference.Version)' != '$(_PackageManagementVersion)' and '%(PackageReference.ManagedVersion)' != 'true'" Code="MH1603" Text="PackageReference %(PackageReference.Identity)@%(PackageReference.Version) has a different version than managed package version $(_PackageManagementVersion). If this is intented, set 'ManagedVersion=&quot;true&quot;' on the PackageReference to ignore this warning." File="$(MSBuildProjectFullPath)" />
+    <ItemGroup>
+      <PackageReference Condition=" '%(Identity)' == '$(_PackageManagementIdentity)' " Version="$(_PackageManagementVersion)" ManagedVersion="true" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="AfterPackageManagement" AfterTargets="ApplyPackageManagement">
+    <ItemGroup>
+      <UnmanagedPackageReference Include="@(PackageReference)" />
+      <UnmanagedPackageReference Remove="@(UnmanagedPackageReference)" Condition=" '%(UnmanagedPackageReference.ManagedVersion)' == 'true' " />
+      <UnmanagedPackageReference Remove="@(UnmanagedPackageReference)" Condition=" '%(UnmanagedPackageReference.IsImplicitlyDefined)' == 'true' " />
+      <UnmanagedPackageReference Remove="@(UnmanagedPackageReference)" Condition=" $([System.String]::Copy('%(Identity)').StartsWith('System.')) " />
+    </ItemGroup>
+    <Warning Condition=" '@(UnmanagedPackageReference)' != '' " Code="MH1601" Text="%(UnmanagedPackageReference.Identity)@%(UnmanagedPackageReference.Version) is an unmanaged PackageReference" File="$(MSBuildProjectFullPath)" />
+  </Target>
+
+</Project>
