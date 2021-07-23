@@ -1,5 +1,7 @@
 using System;
 using MediatR;
+using MetalHeaven.Agent.Shared.External.Classes;
+using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Integration.Shared.Classes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -40,13 +42,16 @@ namespace Rhodium24.Host
                 .UseWindowsService()
                 .ConfigureServices((hostContext, services) =>
                 {
+                    // register agent message serialization helper
+                    services.AddTransient<IAgentMessageSerializationHelper, ExternalAgentMessageSerializationHelper>();
+
                     // register agent settings
                     services.AddOptions<AgentSettings>().Bind(hostContext.Configuration.GetSection("AgentSettings")).ValidateDataAnnotations();
 
                     // register agent output file watcher service
                     services.AddHostedService<AgentOutputFileWatcherService>();
 
-                    // register MediatR with current assembly 
+                    // register MediatR with current assembly
                     services.AddMediatR(typeof(AgentOutputFileWatcherService).Assembly);
                 });
     }

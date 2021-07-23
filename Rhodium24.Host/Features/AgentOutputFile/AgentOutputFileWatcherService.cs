@@ -9,6 +9,10 @@ using Microsoft.Extensions.Options;
 
 namespace Rhodium24.Host.Features.AgentOutputFile
 {
+    /// <summary>
+    /// Service that watches on the output directory of the agent for *.json files
+    /// Publishes an AgentOutputFileCreated notification if a file is created
+    /// </summary>
     public class AgentOutputFileWatcherService : FileWatcherService
     {
         private readonly IMediator _mediator;
@@ -19,7 +23,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
             _mediator = mediator;
             _logger = logger;
 
-            // add file watcher to the agent output directory 
+            // add file watcher to the agent output directory
             AddFileWatcher(AgentSettings.GetOrCreateAgentOutputDirectory(createIfNotExists: true), "*.json");
         }
 
