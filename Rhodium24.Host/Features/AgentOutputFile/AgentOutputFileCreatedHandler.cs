@@ -14,7 +14,6 @@ using Newtonsoft.Json;
 using Versioned.ExternalDataContracts;
 using Versioned.ExternalDataContracts.Contracts.AddressBook;
 using Versioned.ExternalDataContracts.Contracts.Article;
-using Versioned.ExternalDataContracts.Contracts.BoM;
 using Versioned.ExternalDataContracts.Contracts.Project;
 
 namespace Rhodium24.Host.Features.AgentOutputFile
@@ -77,6 +76,76 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                 var project = JsonConvert.DeserializeObject<ProjectV1>(json, settings);
 
                 _logger.LogInformation("Project deserialized succesfully, project id: {id}", project.Id);
+
+                // optional response if your using this to export to ERP.
+                var response = new ExportToErpResponse
+                {
+                    Source = "Integration name",
+                    Succeed = true,
+                    ExternalUrl = "", //Optional url to open the imported entity from Rhodium24
+                    ProjectId = project.Id,
+                    EventLogs = new List<EventLog>
+                    {
+                        new()
+                        {
+                            DateTime = DateTime.UtcNow,
+                            Level = EventLogLevel.Information,
+                            Message = "This is some random information",
+                            ProjectId = project.Id,
+                        }
+                    },
+                    AssemblyImportResults = new List<ExportToErpAssemblyResponse>
+                    {
+                        new()
+                        {
+                            Succeed = false,
+                            AssemblyId = Guid.Empty, // specific assembly id
+                            ExternalUrl = "", // Optional url to open the imported entity from Rhodium24
+                            EventLogs = new List<EventLog>
+                            {
+                                new()
+                                {
+                                    DateTime = DateTime.UtcNow,
+                                    Level = EventLogLevel.Information,
+                                    Message = "This is some random information",
+                                    ProjectId = project.Id,
+                                    AssemblyId = Guid.Empty // specific assembly id
+                                }
+                            },
+                        }
+                    },
+                    PartTypeResults = new List<ExportToErpPartTypeResponse>
+                    {
+                        new()
+                        {
+                            Succeed = false,
+                            PartTypeId = Guid.Empty, // specific part type id
+                            ExternalUrl = "", // Optional url to open the imported entity from Rhodium24
+                            EventLogs = new List<EventLog>
+                            {
+                                new()
+                                {
+                                    DateTime = DateTime.UtcNow,
+                                    Level = EventLogLevel.Information,
+                                    Message = "This is some random information",
+                                    ProjectId = project.Id,
+                                    PartTypeId = Guid.Empty // specific part type id
+                                }
+                            },
+                        }
+                    }
+                };
+
+                var responseJson = _agentMessageSerializationHelper.ToJson(response);
+
+                // get temp file path
+                var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
+
+                // save json to temp file
+                await File.WriteAllTextAsync(tempFile, responseJson);
+
+                // move file to agent input directory
+                _options.MoveFileToAgentInput(tempFile);
             }
             catch (Exception ex)
             {
@@ -138,6 +207,15 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                                     Code = "MH24",
                                     // etc.
                                 }
+                            },
+                            EventLogs = new List<EventLog>
+                            {
+                                new()
+                                {
+                                    DateTime = DateTime.UtcNow,
+                                    Level = EventLogLevel.Information,
+                                    Message = "This is some random information"
+                                }
                             }
                         };
                         break;
@@ -152,6 +230,15 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                                     Code = "ITEM24",
                                     // etc.
                                 }
+                            },
+                            EventLogs = new List<EventLog>
+                            {
+                                new()
+                                {
+                                    DateTime = DateTime.UtcNow,
+                                    Level = EventLogLevel.Information,
+                                    Message = "This is some random information"
+                                }
                             }
                         };
                         break;
@@ -160,18 +247,17 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                         {
                             ProjectId = manufacturabilityCheck.ProjectId,
                             PartTypeId = manufacturabilityCheck.PartType.Id,
-                            ManufacturabilityResult = new ManufacturabilityResultV1
+                            IsManufacturable = true,
+                            WorkingStepKey = manufacturabilityCheck.WorkingStepKey,
+                            EventLogs = new List<EventLog>
                             {
-                                IsManufacturable = true,
-                                WorkingStepKey = manufacturabilityCheck.WorkingStepKey,
-                                Logs = new List<ManufacturabilityResultLogV1>
+                                new()
                                 {
-                                    new()
-                                    {
-                                        Level = ManufacturabilityResultLogSeverityV1.Information,
-                                        Message = "This is some random information",
-                                        ExternalErrorCode = "Error code"
-                                    }
+                                    DateTime = DateTime.UtcNow,
+                                    Level = EventLogLevel.Information,
+                                    Message = "This is some random information",
+                                    ProjectId = manufacturabilityCheck.ProjectId,
+                                    PartTypeId = manufacturabilityCheck.PartType.Id
                                 }
                             }
                         };
@@ -182,7 +268,18 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                             ProjectId = productionTimeEstimation.ProjectId,
                             PartTypeId = productionTimeEstimation.PartType.Id,
                             WorkingStepKey = productionTimeEstimation.WorkingStepKey,
-                            EstimatedProductionTimeMs = (long)TimeSpan.FromMinutes(12).TotalMilliseconds
+                            EstimatedProductionTimeMs = (long)TimeSpan.FromMinutes(12).TotalMilliseconds,
+                            EventLogs = new List<EventLog>
+                            {
+                                new()
+                                {
+                                    DateTime = DateTime.UtcNow,
+                                    Level = EventLogLevel.Information,
+                                    Message = "This is some random information",
+                                    ProjectId = productionTimeEstimation.ProjectId,
+                                    PartTypeId = productionTimeEstimation.PartType.Id
+                                }
+                            }
                         };
                         break;
                     case RequestAdditionalCostsOfPartTypeMessage additionalCosts:
@@ -191,7 +288,18 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                             ProjectId = additionalCosts.ProjectId,
                             PartTypeId = additionalCosts.PartType.Id,
                             WorkingStepKey = additionalCosts.WorkingStepKey,
-                            AdditionalCosts = 12.50m
+                            AdditionalCosts = 12.50m,
+                            EventLogs = new List<EventLog>
+                            {
+                                new()
+                                {
+                                    DateTime = DateTime.UtcNow,
+                                    Level = EventLogLevel.Information,
+                                    Message = "This is some random information",
+                                    ProjectId = additionalCosts.ProjectId,
+                                    PartTypeId = additionalCosts.PartType.Id
+                                }
+                            }
                         };
                         break;
                     default:
