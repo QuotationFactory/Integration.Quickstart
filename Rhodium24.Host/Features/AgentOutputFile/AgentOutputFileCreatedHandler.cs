@@ -76,6 +76,76 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                 var project = JsonConvert.DeserializeObject<ProjectV1>(json, settings);
 
                 _logger.LogInformation("Project deserialized succesfully, project id: {id}", project.Id);
+
+                // optional response if your using this to export to ERP.
+                var response = new ExportToErpResponse
+                {
+                    Source = "Integration name",
+                    Succeed = true,
+                    ExternalUrl = "", //Optional url to open the imported entity from Rhodium24
+                    ProjectId = project.Id,
+                    EventLogs = new List<EventLog>
+                    {
+                        new()
+                        {
+                            DateTime = DateTime.UtcNow,
+                            Level = EventLogLevel.Information,
+                            Message = "This is some random information",
+                            ProjectId = project.Id,
+                        }
+                    },
+                    AssemblyImportResults = new List<ExportToErpAssemblyResponse>
+                    {
+                        new()
+                        {
+                            Succeed = false,
+                            AssemblyId = Guid.Empty, // specific assembly id
+                            ExternalUrl = "", // Optional url to open the imported entity from Rhodium24
+                            EventLogs = new List<EventLog>
+                            {
+                                new()
+                                {
+                                    DateTime = DateTime.UtcNow,
+                                    Level = EventLogLevel.Information,
+                                    Message = "This is some random information",
+                                    ProjectId = project.Id,
+                                    AssemblyId = Guid.Empty // specific assembly id
+                                }
+                            },
+                        }
+                    },
+                    PartTypeResults = new List<ExportToErpPartTypeResponse>
+                    {
+                        new()
+                        {
+                            Succeed = false,
+                            PartTypeId = Guid.Empty, // specific part type id
+                            ExternalUrl = "", // Optional url to open the imported entity from Rhodium24
+                            EventLogs = new List<EventLog>
+                            {
+                                new()
+                                {
+                                    DateTime = DateTime.UtcNow,
+                                    Level = EventLogLevel.Information,
+                                    Message = "This is some random information",
+                                    ProjectId = project.Id,
+                                    PartTypeId = Guid.Empty // specific part type id
+                                }
+                            },
+                        }
+                    }
+                };
+
+                var responseJson = _agentMessageSerializationHelper.ToJson(response);
+
+                // get temp file path
+                var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
+
+                // save json to temp file
+                await File.WriteAllTextAsync(tempFile, responseJson);
+
+                // move file to agent input directory
+                _options.MoveFileToAgentInput(tempFile);
             }
             catch (Exception ex)
             {
