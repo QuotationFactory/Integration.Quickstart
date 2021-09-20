@@ -21,7 +21,7 @@
     <PackageManagement Include="MetalHeaven.Integration.Shared" Version="0.1.5" />
     <PackageManagement Include="MetalHeaven.Agent.Shared" Version="0.1.23" />
     <PackageManagement Include="MetalHeaven.Agent.Shared.External" Version="0.1.15"/>
-    <PackageManagement Include="MetalHeaven.ExternalDataContracts" Version="0.1.250"/>
+    <PackageManagement Include="MetalHeaven.ExternalDataContracts" Version="0.1.257"/>
   </ItemGroup>
 
 </Project>
