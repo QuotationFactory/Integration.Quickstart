@@ -183,12 +183,12 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                 // read json from file
                 var fileContent = await File.ReadAllTextAsync(jsonFilePath);
 
-                _logger.LogInformation("Start file process as agent message");
-
                 // convert json to agent message
                 var agentMessage = _agentMessageSerializationHelper.FromJson(fileContent);
 
-                IAgentMessage agentMessageResponse;
+                _logger.LogInformation("Processing agent message type: '{Type}'", agentMessage.MessageType);
+
+                IAgentMessage agentMessageResponse = null;
 
                 // process agent message
                 switch (agentMessage)
@@ -224,9 +224,37 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                                 new()
                                 {
                                     Id = 1,
-                                    Code = "ITEM24",
-                                    // etc.
-                                }
+                                    Code = "ITEM1",
+                                    Description = "Item with single price",
+                                    Price = 123.45m,
+                                    CurrencyIsoCode = "EUR",
+                                    Quantity = 1,
+                                    UnitIsoCode = "C62" // one piece
+                                },
+                                new()
+                                {
+                                    Id = 2,
+                                    Code = "ITEM2",
+                                    Description = "Item with scaled price",
+                                    // Price = 123.45m,
+                                    CurrencyIsoCode = "EUR",
+                                    Quantity = 1,
+                                    UnitIsoCode = "C62", // one piece
+                                    ScalePriceUnitIsoCode = "C62", // one piece
+                                    ScalePrices =
+                                    {
+                                        new ScalePrice
+                                        {
+                                            Price = 200,
+                                            Quantity = 0
+                                        },
+                                        new ScalePrice
+                                        {
+                                            Price = 100,
+                                            Quantity = 50
+                                        }
+                                    }
+                                },
                             },
                             EventLogs = new List<EventLog>
                             {
@@ -316,21 +344,30 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                             }
                         };
                         break;
+                    case ProjectStatusChangedMessage projectStatusChanged:
+                        {
+                            _logger.LogInformation("Project '{ProjectId}' status is changed to '{Status}'", projectStatusChanged.ProjectId, projectStatusChanged.ProjectState);
+
+                            break;
+                        }
                     default:
                         throw new Exception($"Cannot process agent message {agentMessage.MessageType}");
                 }
 
-                // convert agent response message to json
-                var json = _agentMessageSerializationHelper.ToJson(agentMessageResponse);
+                if (agentMessageResponse is not null)
+                {
+                    // convert agent response message to json
+                    var json = _agentMessageSerializationHelper.ToJson(agentMessageResponse);
 
-                // get temp file path
-                var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
+                    // get temp file path
+                    var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
 
-                // save json to temp file
-                await File.WriteAllTextAsync(tempFile, json);
+                    // save json to temp file
+                    await File.WriteAllTextAsync(tempFile, json);
 
-                // move file to agent input directory
-                _options.MoveFileToAgentInput(tempFile);
+                    // move file to agent input directory
+                    _options.MoveFileToAgentInput(tempFile);
+                }
 
                 _logger.LogInformation("Agent message file successfully processed");
             }
