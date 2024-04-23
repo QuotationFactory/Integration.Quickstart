@@ -16,6 +16,7 @@ using Versioned.ExternalDataContracts;
 using Versioned.ExternalDataContracts.Contracts.AddressBook;
 using Versioned.ExternalDataContracts.Contracts.Article;
 using Versioned.ExternalDataContracts.Contracts.Project;
+using Versioned.ExternalDataContracts.Enums;
 
 namespace Rhodium24.Host.Features.AgentOutputFile
 {
@@ -193,7 +194,12 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                 // process agent message
                 switch (agentMessage)
                 {
-                    case RequestAddressBookSyncMessage addressBookSync:
+                    //process addressBookSyncRequest
+                    case RequestAddressBookSyncMessage addressBookSyncRequest:
+
+                        // implement business logic here
+
+                        // create addressBookSyncRequestResponse message
                         agentMessageResponse = new RequestAddressBookSyncMessageResponse
                         {
                             Relations = new AgentRelationImportRequest[]
@@ -201,8 +207,27 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                                 new()
                                 {
                                     Id = 1,
-                                    Code = "MH24",
-                                    // etc.
+                                    Code = "Debtor Code",
+                                    CompanyName = "Quotation Factory B.V.",
+                                    Email = "info@quotationfactory.com",
+                                    Phone = "+31(0)850047332",
+                                    Website = "https://www.quotationfactory.com",
+                                    PostalStreet = "Aalsterweg",
+                                    PostalHouseNumber = "262",
+                                    //PostalHouseNumberAddition = "",
+                                    PostalCity = "Eindhoven",
+                                    PostalZipCode = "5644RK",
+                                    PostalStateOrProvince = "Noord-Brabant",
+                                    PostalCountryCode = "NL",
+                                    PostalCountryName = "Netherlands",
+                                    LanguageCode = "",
+                                    SegmentName = "A",
+                                    Tags = Array.Empty<string>(),
+                                    VatNumber = "",
+                                    VatRatio = .21,
+                                    // CoCNumber = "",
+                                    // CoCCountryCode = "NL",
+                                    // CoCCountryName = "Netherlands"
                                 }
                             },
                             EventLogs = new List<EventLog>
@@ -216,7 +241,13 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                             }
                         };
                         break;
-                    case RequestArticlesSyncMessage articlesSync:
+
+                    //process addressBookSyncRequest
+                    case RequestArticlesSyncMessage articlesSyncRequest:
+                        // implement business logic here
+
+                        // create ArticleSyncRequestResponse message
+
                         agentMessageResponse = new RequestArticlesSyncMessageResponse
                         {
                             Articles = new AgentArticleImportRequest[]
@@ -229,7 +260,8 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                                     Price = 123.45m,
                                     CurrencyIsoCode = "EUR",
                                     Quantity = 1,
-                                    UnitIsoCode = "C62" // one piece
+                                    UnitIsoCode = "C62", // one piece
+                                    HideInPortal = false // null / true / false
                                 },
                                 new()
                                 {
@@ -240,6 +272,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                                     CurrencyIsoCode = "EUR",
                                     Quantity = 1,
                                     UnitIsoCode = "C62", // one piece
+                                    HideInPortal = false, // null / true / false
                                     ScalePriceUnitIsoCode = "C62", // one piece
                                     ScalePrices =
                                     {
@@ -346,8 +379,38 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                         break;
                     case ProjectStatusChangedMessage projectStatusChanged:
                         {
-                            _logger.LogInformation("Project '{ProjectId}' status is changed to '{Status}'", projectStatusChanged.ProjectId, projectStatusChanged.ProjectState);
+                            //optional ChangeProjectStatusMessage
+                            agentMessageResponse = new ChangeProjectStatusMessage()
+                            {
+                                ProjectId = projectStatusChanged.ProjectId,
+                                ProjectState = ProjectStatesV1.Produced
+                                //examples
+                                // ProjectStatesV1.Ordered = 6,
+                                // ProjectStatesV1.Producing = 7,
+                                // ProjectStatesV1.Produced = 8,
+                                // ProjectStatesV1.Packaging = 10,
+                                // ProjectStatesV1.Packaged = 11,
+                                // ProjectStatesV1.Delivering = 12,
+                                // ProjectStatesV1.Delivered = 13,
+                                // ProjectStatesV1.Cancelled = 14,
 
+                                // ProjectStatesV1.Defining = 1,
+                                // ProjectStatesV1.Requested = 2,
+                                // ProjectStatesV1.Quoting = 3,
+                                // ProjectStatesV1.Quoted = 4,
+                                // ProjectStatesV1.Negotiating = 5,
+
+                            };
+                            break;
+                        }
+                    case ChangeProjectOrderNumberMessage changeProjectOrderNumber:
+                        {
+                            //optional ChangeProjectOrderNumberMessage
+                            agentMessageResponse = new ChangeProjectOrderNumberMessage()
+                            {
+                                ProjectId = changeProjectOrderNumber.ProjectId,
+                                OrderNumber = "2024123456789"
+                            };
                             break;
                         }
                     default:
