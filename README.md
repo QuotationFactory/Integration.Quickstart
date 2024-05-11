@@ -11,9 +11,7 @@ When you create an Quotation Factory Agent in the portal you need to provide a '
 Output files from Quotation Factory are stored in the Output directory inside the root directory of the Quotation Factory Agent.  
 
 For example:
-```
 if the Quotation Factory Agent has the root directory configured like 'C:\Agent\Exchange', the Output files will be stored in 'C:\Agent\Exchange\Output'.
-```
 
 The **Root directory** needs to be configured in the appsettings.json or appsettings.development.json in this project.
 
