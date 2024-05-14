@@ -29,48 +29,36 @@ When change the status of a project inside Quotation Factory to Quoted or Ordere
 
 Please create an issue if you got a suggestion or if you need help.
 
-# Developer Guide for Building Integrations Using QF Agent
+# Developer Guide for Custom Quotation Factory Integrations
 
-## Introduction
-This guide is designed to help developers leverage the Quotation Factory Agent (QF Agent) to create custom integrations with the Quotation Factory cloud platform. The QF Agent enables robust interaction between local systems and the cloud, facilitating a variety of automated tasks and data synchronization processes.
+## Overview
 
-## Getting Started
-To jump-start the development of your custom integration, you can utilize an example project provided in our GitHub repository. This project contains foundational code and examples that demonstrate how to implement specific interactions using the QF Agent.
+The Quotation Factory Agent (QF Agent) enables robust, custom integrations with the Quotation Factory cloud platform. Developers can leverage the example project provided on GitHub as a starting point for building their own integrations. Access the project here: [QF.Basic.Integration.Quickstart Repository](https://github.com/QuotationFactory/QF.Basic.Integration.Quickstart/tree/master).
 
-### Quickstart Project Repository
-- **Repository**: [QF.Basic.Integration.Quickstart](https://github.com/QuotationFactory/QF.Basic.Integration.Quickstart/tree/master)
+## Message Handling in QF Agent
 
-This repository contains sample handlers and templates that you can use to understand the mechanisms of QF Agent integration and to build upon for creating customized functionalities.
+The `AgentOutputFileCreatedHandler.cs` class within the example project includes various message handlers that facilitate interactions between your local systems and the QF cloud platform. Below is a detailed table summarizing the messages, their purposes, and the corresponding response objects.
 
-## Key Components in the Example Project
+| Message | Response Object | Description |
+|---------|-----------------|-------------|
+| `ReadProjectZipFileAsync` | `ExportToErpResponse` | Handles requests to read project data compressed as a ZIP file and prepares it for export to an ERP system. |
+| `RequestAddressBookSyncMessage` | `RequestAddressBookSyncMessageResponse` | Initiates synchronization of address book data between the local system and the QF platform. |
+| `RequestArticlesSyncMessage` | `RequestArticlesSyncMessageResponse` | Triggers the synchronization of article data, including updates or new entries, between local systems and the cloud platform. |
+| `RequestManufacturabilityCheckOfPartTypeMessage` | `RequestManufacturabilityCheckOfPartTypeMessageResponse` | Requests a manufacturability check for a specific part type, with the system returning issues or confirmations. |
+| `RequestProductionTimeEstimationOfPartTypeMessage` | `RequestProductionTimeEstimationOfPartTypeMessageResponse` | Asks for an estimation of production time for a part type, essential for planning and scheduling in manufacturing processes. |
+| `RequestAdditionalCostsOfPartTypeMessage` | `RequestAdditionalCostsOfPartTypeMessageResponse` | Inquires about additional costs associated with manufacturing a particular part type, aiding in financial planning and quotation accuracy. |
+| `ProjectStatusChangedMessage` | None (Echo Message) | Communicates changes in the project status back to the QF platform, updating the current state of the project. |
+| `ChangeProjectOrderNumberMessage` | None (Echo Message) | Allows updating the project order number in the QF platform, reflecting any changes made locally. |
 
-### Class File: `AgentOutputFileCreatedHandler.cs`
-This class file includes various handlers that act upon commands and queries facilitated by the QF Agent. Here's a brief overview of each handler available in the example project:
+## Building Your Integration
 
-#### Command Handlers
-Commands are used to perform operations that modify data or state on the server. In CQRS (Command Query Responsibility Segregation) architecture, these commands represent operations that directly influence system behaviors:
+To develop your own integration using the QF Agent, follow these steps:
 
-- **RequestAddressBookSyncMessage**: Triggers synchronization of the address book data from the local system to the cloud.
-- **RequestArticlesSyncMessage**: Initiates synchronization of article data between the local system and the cloud platform.
-- **RequestManufacturabilityCheckOfPartTypeMessage**: Sends a request to evaluate the manufacturability of a specified part type.
-- **RequestProductionTimeEstimationOfPartTypeMessage**: Requests an estimation of production time for a specific part type.
-- **RequestAdditionalCostsOfPartTypeMessage**: Queries additional cost estimates associated with manufacturing a part type.
-- **ChangeProjectOrderNumberMessage**: Modifies the order number associated with a project.
-
-#### Query Handler
-Queries are used to request data from the server without modifying any state. They are part of the CQRS pattern:
-
-- **ProjectStatusChangedMessage**: Retrieves updates about changes in project status.
-
-### Developing Custom Handlers
-To develop your own custom handlers, follow these steps:
-
-1. **Clone the Repository**: Start by cloning the `QF.Basic.Integration.Quickstart` repository to your local development environment.
-2. **Explore Existing Handlers**: Familiarize yourself with the existing handlers in `AgentOutputFileCreatedHandler.cs` to understand how they interact with the QF Agent and the cloud platform.
-3. **Create New Handlers**:
-   - Identify the operations you need to handle.
-   - Implement new handlers by extending the `AgentOutputFileCreatedHandler.cs` or creating new class files as needed.
-   - Ensure that command handlers are idempotent and that query handlers are side-effect free.
+1. **Clone the Example Project**: Start by cloning the example project from the GitHub repository.
+2. **Review the Example Handlers**: Understand how the handlers in the `AgentOutputFileCreatedHandler.cs` class interact with the Quotation Factory platform.
+3. **Customize Message Handlers**: Modify existing handlers or create new ones to meet the specific needs of your integration.
+4. **Test Your Integration**: Thoroughly test the integration in a controlled environment to ensure it functions correctly and interacts with the QF platform as expected.
+5. **Deploy**: Once testing is complete, deploy your custom integration to production.
 
 ### Best Practices
 - **Use Clear Naming Conventions**: Like the examples, ending handler names with `Message` helps in identifying the purpose and nature of the handler.
