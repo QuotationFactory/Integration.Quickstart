@@ -52,7 +52,9 @@ namespace Rhodium24.Host
                     services.AddHostedService<AgentOutputFileWatcherService>();
 
                     // register MediatR with current assembly
-                    services.AddMediatR(typeof(AgentOutputFileWatcherService).Assembly);
+                    services.AddMediatR(
+                        cfg => {cfg.RegisterServicesFromAssembly(typeof(AgentOutputFileWatcherService).Assembly);}
+                    );
                 });
     }
 }
