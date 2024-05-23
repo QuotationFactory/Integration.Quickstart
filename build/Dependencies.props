@@ -1,7 +1,6 @@
 <Project>
   <ItemGroup>
     <PackageManagement Include="MediatR" Version="12.2.0" />
-    <PackageManagement Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
     <PackageManagement Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageManagement Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageManagement Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
