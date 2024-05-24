@@ -16,6 +16,6 @@ namespace Rhodium24.Host.Features.AgentOutputFile
 
         public string DriveId { get; set; }
 
-        public string TargetFolder { get; set; }
+        public string TargetDirectory { get; set; }
     }
 }

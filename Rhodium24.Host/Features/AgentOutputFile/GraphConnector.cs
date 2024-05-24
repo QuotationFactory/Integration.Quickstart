@@ -17,7 +17,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
         private static GraphServiceClient _graphServiceClient = new GraphServiceClient(new DefaultAzureCredential());
         private static string _driveId;
         private static string _driveWebUrl;
-        private static string _targetFolder;
+        private static string _targetDirectory;
 
         public GraphConnector(IOptions<GraphAgentSettings> options, ILogger<AgentOutputFileCreatedHandler> logger)
         {
@@ -29,7 +29,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
 
             _graphServiceClient = new GraphServiceClient(clientSecretCredential, scopes);
             _driveId = _options.DriveId;
-            _targetFolder = _options.TargetFolder;
+            _targetDirectory = _options.TargetDirectory;
 
             var drive = _graphServiceClient.Drives[_driveId].GetAsync().GetAwaiter().GetResult();
             _driveWebUrl = drive?.WebUrl;
@@ -38,7 +38,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
 
         public async Task UploadFileSharePointOnline(string filePath)
         {
-            var targetFilePath = _targetFolder + "/" + Path.GetFileName(filePath);
+            var targetFilePath = _targetDirectory + "/" + Path.GetFileName(filePath);
             using (var stream = File.OpenRead(filePath))
             {
                 var driveItemUpload = await _graphServiceClient
