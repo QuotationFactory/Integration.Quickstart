@@ -18,14 +18,15 @@ namespace Rhodium24.Host.Features.AgentOutputFile
         private readonly IMediator _mediator;
         private readonly ILogger<AgentOutputFileWatcherService> _logger;
 
-        public AgentOutputFileWatcherService(IMediator mediator, IOptions<AgentSettings> options, ILogger<AgentOutputFileWatcherService> logger) : base(options)
+        public AgentOutputFileWatcherService(IMediator mediator, IOptions<GraphAgentSettings> options, ILogger<AgentOutputFileWatcherService> logger) : base(options)
         {
             _mediator = mediator;
             _logger = logger;
 
             // add file watcher to the agent output directory
-            AddFileWatcher(AgentSettings.GetOrCreateAgentOutputDirectory(createIfNotExists: true), "*.json");
+            AddFileWatcher(options.Value.GetOutputDirectory(), "*.json");
         }
+
 
         protected override void OnAllChanges(object sender, FileSystemEventArgs e)
         {

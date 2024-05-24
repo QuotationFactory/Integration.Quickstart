@@ -1,11 +1,11 @@
-﻿{
+{
   "profiles": {
-    "Metal.Heaven.Integration.Host": {
+    "QF.Host": {
       "commandName": "Project",
-      "dotnetRunMessages": "true",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
-      }
+      },
+      "dotnetRunMessages": "true"
     }
   }
 }

@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
 using MediatR;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
-using MetalHeaven.Integration.Shared.Classes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -22,17 +20,20 @@ namespace Rhodium24.Host.Features.AgentOutputFile
 {
     public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFileCreated>
     {
-        private readonly AgentSettings _options;
+        private readonly GraphAgentSettings _options;
         private readonly IAgentMessageSerializationHelper _agentMessageSerializationHelper;
         private readonly ILogger<AgentOutputFileCreatedHandler> _logger;
-        private static Random _random = new Random();
+        private static readonly Random _random = new();
+        private static GraphConnector _graphConnector;
 
-        public AgentOutputFileCreatedHandler(IOptions<AgentSettings> options,
+        
+        public AgentOutputFileCreatedHandler(IOptions<GraphAgentSettings> options,
             IAgentMessageSerializationHelper agentMessageSerializationHelper, ILogger<AgentOutputFileCreatedHandler> logger)
         {
             _options = options.Value;
             _agentMessageSerializationHelper = agentMessageSerializationHelper;
             _logger = logger;
+            _graphConnector = new GraphConnector(options, logger);
         }
 
         public async Task Handle(AgentOutputFileCreated notification, CancellationToken cancellationToken)
@@ -49,6 +50,9 @@ namespace Rhodium24.Host.Features.AgentOutputFile
             // check if json & zip file exists it means that a project has been exported
             if (File.Exists(jsonFilePath) && File.Exists(zipFilePath))
             {
+                await _graphConnector.UploadFileSharePointOnline(jsonFilePath);
+                await _graphConnector.UploadFileSharePointOnline(zipFilePath);
+
                 await HandleProjectFiles(jsonFilePath, zipFilePath);
                 return;
             }
@@ -65,7 +69,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
 
                 // log zip content
                 foreach (var (fileName, fileBytes) in zipContent)
-                    _logger.LogInformation($"Found file '{fileName}' in zipfile, size {fileBytes.Length}.");
+                    _logger.LogInformation("Found file '{1}' in zipfile, size {2}.", fileName, fileBytes.Length);
 
                 // define json serializer settings
                 var settings = new JsonSerializerSettings();
@@ -79,77 +83,21 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                 // convert json to project object
                 var project = JsonConvert.DeserializeObject<ProjectV1>(json, settings);
 
-                _logger.LogInformation("Project deserialized succesfully, project id: {id}", project.Id);
+                _logger.LogInformation("Project processed succesfully; buyer: {1}, id: {2}, reference: {3}", project.BuyingParty.Name, project.Id, project.ProjectReference);
 
-                // optional response if your using this to export to ERP.
-                var response = new ExportToErpResponse
-                {
-                    Source = "Integration name",
-                    Succeed = _random.NextDouble() >= 0.5,
-                    ExternalUrl = "https://www.google.nl", //Optional url to open the imported entity from Rhodium24
-                    ProjectId = project.Id,
-                    EventLogs = new List<EventLog>
-                    {
-                        new()
-                        {
-                            DateTime = DateTime.UtcNow,
-                            Level = EventLogLevel.Information,
-                            Message = "This is some random information",
-                            ProjectId = project.Id,
-                        }
-                    },
-                    AssemblyImportResults = project.BoM.Assemblies.Select(assembly => new ExportToErpAssemblyResponse
-                    {
-                        Succeed = _random.NextDouble() >= 0.5,
-                        AssemblyId = assembly.Id, // specific assembly id
-                        ExternalUrl = "", // Optional url to open the imported entity from Rhodium24
-                        EventLogs = new List<EventLog>
-                        {
-                            new()
-                            {
-                                DateTime = DateTime.UtcNow,
-                                Level = EventLogLevel.Information,
-                                Message = "This is some random information",
-                                ProjectId = project.Id,
-                                AssemblyId = assembly.Id
-                            }
-                        },
-                    }),
-                    PartTypeResults = project.BoM.PartList.Select(partType => new ExportToErpPartTypeResponse
-                    {
-                        Succeed = _random.NextDouble() >= 0.5,
-                        PartTypeId = partType.Id, // specific assembly id
-                        ExternalUrl = "", // Optional url to open the imported entity from Rhodium24
-                        EventLogs = new List<EventLog>
-                        {
-                            new()
-                            {
-                                DateTime = DateTime.UtcNow,
-                                Level = EventLogLevel.Information,
-                                Message = "This is some random information",
-                                ProjectId = project.Id,
-                                PartTypeId = partType.Id
-                            }
-                        },
-                    })
-                };
+                // move file to agent processed directory
+                _options.MoveFileToProcessed(jsonFilePath);
+                _options.MoveFileToProcessed(zipFilePath);
 
-                var responseJson = _agentMessageSerializationHelper.ToJson(response);
+                _logger.LogInformation("Moved files to {1}", _options.GetProcessedDirectory());
 
-                // get temp file path
-                var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
-
-                // save json to temp file
-                await File.WriteAllTextAsync(tempFile, responseJson);
-
-                // move file to agent input directory
-                _options.MoveFileToAgentInput(tempFile);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occured while handling project files");
             }
-        }
+        }       
+
 
         private static async Task<Dictionary<string, byte[]>> ReadProjectZipFileAsync(string zipFilePath)
         {
@@ -177,6 +125,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
             return zipFiles;
         }
 
+
         private async Task HandleAgentMessage(string jsonFilePath)
         {
             try
@@ -194,7 +143,6 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                 // process agent message
                 switch (agentMessage)
                 {
-                    //process addressBookSyncRequest
                     case RequestAddressBookSyncMessage addressBookSyncRequest:
 
                         // implement business logic here
@@ -242,7 +190,6 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                         };
                         break;
 
-                    //process addressBookSyncRequest
                     case RequestArticlesSyncMessage articlesSyncRequest:
                         // implement business logic here
 
@@ -300,6 +247,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                             }
                         };
                         break;
+
                     case RequestManufacturabilityCheckOfPartTypeMessage manufacturabilityCheck:
                         {
                             agentMessageResponse = new RequestManufacturabilityCheckOfPartTypeMessageResponse
@@ -337,6 +285,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                             };
                         }
                         break;
+
                     case RequestProductionTimeEstimationOfPartTypeMessage productionTimeEstimation:
                         agentMessageResponse = new RequestProductionTimeEstimationOfPartTypeMessageResponse
                         {
@@ -357,6 +306,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                             }
                         };
                         break;
+
                     case RequestAdditionalCostsOfPartTypeMessage additionalCosts:
                         agentMessageResponse = new RequestAdditionalCostsOfPartTypeMessageResponse
                         {
@@ -377,6 +327,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                             }
                         };
                         break;
+
                     case ProjectStatusChangedMessage projectStatusChanged:
                         {
                             //optional ChangeProjectStatusMessage
@@ -403,6 +354,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                             };
                             break;
                         }
+
                     case ChangeProjectOrderNumberMessage changeProjectOrderNumber:
                         {
                             //optional ChangeProjectOrderNumberMessage
@@ -413,6 +365,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                             };
                             break;
                         }
+
                     default:
                         throw new Exception($"Cannot process agent message {agentMessage.MessageType}");
                 }

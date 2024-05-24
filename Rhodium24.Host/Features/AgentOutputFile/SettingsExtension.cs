@@ -17,15 +17,15 @@ namespace Rhodium24.Host.Features.AgentOutputFile
 
             return totalPath;
         }
-        public static string GetInputDirectory(this AgentSettings settings) => GetOrCreateDirectory(Path.Combine(settings.RootDirectory, "Input"));
-        public static string GetOutputDirectory(this AgentSettings settings) => GetOrCreateDirectory(Path.Combine(settings.RootDirectory, "Output"));
-        public static string GetProcessingDirectory(this AgentSettings settings) => GetOrCreateDirectory(settings.GetOutputDirectory(), "Processing");
-        public static string GetProcessedDirectory(this AgentSettings settings) => GetOrCreateDirectory(settings.GetOutputDirectory(), "Processed");
-        public static string GetErrorDirectory(this AgentSettings settings) => GetOrCreateDirectory(settings.GetOutputDirectory(), "Error");
-        public static string MoveFileToProcessing(this AgentSettings settings, string filePath) => filePath.MoveFileToDirectory(settings.GetProcessingDirectory());
-        public static string MoveFileToProcessed(this AgentSettings settings, string filePath) => filePath.MoveFileToDirectory(settings.GetProcessedDirectory());
-        public static string MoveFileToError(this AgentSettings settings, string filePath) => filePath.MoveFileToDirectory(settings.GetErrorDirectory());
-        public static string MoveFileToAgentInput(this AgentSettings settings, string filePath)
+        public static string GetInputDirectory(this GraphAgentSettings settings) => GetOrCreateDirectory(Path.Combine(settings.RootDirectory, "Input"));
+        public static string GetOutputDirectory(this GraphAgentSettings settings) => GetOrCreateDirectory(Path.Combine(settings.RootDirectory, "Output"));
+        public static string GetProcessingDirectory(this GraphAgentSettings settings) => GetOrCreateDirectory(settings.GetOutputDirectory(), "Processing");
+        public static string GetProcessedDirectory(this GraphAgentSettings settings) => GetOrCreateDirectory(settings.GetOutputDirectory(), "Processed");
+        public static string GetErrorDirectory(this GraphAgentSettings settings) => GetOrCreateDirectory(settings.GetOutputDirectory(), "Error");
+        public static string MoveFileToProcessing(this GraphAgentSettings settings, string filePath) => filePath.MoveFileToDirectory(settings.GetProcessingDirectory());
+        public static string MoveFileToProcessed(this GraphAgentSettings settings, string filePath) => filePath.MoveFileToDirectory(settings.GetProcessedDirectory());
+        public static string MoveFileToError(this GraphAgentSettings settings, string filePath) => filePath.MoveFileToDirectory(settings.GetErrorDirectory());
+        public static string MoveFileToAgentInput(this GraphAgentSettings settings, string filePath)
         {
             if (!File.Exists(filePath))
                 throw new FileNotFoundException("File not found", filePath);
@@ -63,7 +63,7 @@ namespace Rhodium24.Host.Features.AgentOutputFile
                 result = Path.Combine(Path.GetDirectoryName(destinationFilePath), $"{Path.GetFileNameWithoutExtension(destinationFilePath)} (1){Path.GetExtension(destinationFilePath)}");
             }
 
-            File.Move(filePath, result);
+            File.Move(filePath, result, true);
 
             return result;
         }

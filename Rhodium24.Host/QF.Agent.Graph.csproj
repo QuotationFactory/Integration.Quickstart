@@ -11,6 +11,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Azure.Identity" Version="1.11.3" />
       <PackageReference Include="MediatR" />
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
@@ -19,6 +20,8 @@
       <PackageReference Include="Microsoft.Extensions.Options" />
       <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
       <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+      <PackageReference Include="Microsoft.Graph" Version="5.54.0" />
+      <PackageReference Include="Microsoft.Graph.Core" Version="3.1.11" />
       <PackageReference Include="Serilog" />
       <PackageReference Include="Serilog.Extensions.Hosting" />
       <PackageReference Include="Serilog.Extensions.Logging" />

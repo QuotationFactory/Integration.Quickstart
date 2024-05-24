@@ -46,7 +46,7 @@ namespace Rhodium24.Host
                     services.AddTransient<IAgentMessageSerializationHelper, ExternalAgentMessageSerializationHelper>();
 
                     // register agent settings
-                    services.AddOptions<AgentSettings>().Bind(hostContext.Configuration.GetSection("AgentSettings")).ValidateDataAnnotations();
+                    services.AddOptions<GraphAgentSettings>().Bind(hostContext.Configuration.GetSection("GraphAgentSettings")).ValidateDataAnnotations();
 
                     // register agent output file watcher service
                     services.AddHostedService<AgentOutputFileWatcherService>();
