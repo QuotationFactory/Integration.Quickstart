@@ -1,7 +1,7 @@
 using System;
+using Integration.Common.Classes;
 using MetalHeaven.Agent.Shared.External.Classes;
 using MetalHeaven.Agent.Shared.External.Interfaces;
-using MetalHeaven.Integration.Shared.Classes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Rhodium24.Host.Features.AgentOutputFile;

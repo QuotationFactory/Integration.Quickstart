@@ -28,7 +28,6 @@
 
     <ItemGroup>
       <PackageReference Include="MetalHeaven.ExternalDataContracts" />
-      <PackageReference Include="MetalHeaven.Integration.Shared" />
       <PackageReference Include="MetalHeaven.Agent.Shared.External" />
     </ItemGroup>
 
@@ -36,5 +35,9 @@
       <None Update="appsettings.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Integration.Common\Integration.Common.csproj" />
     </ItemGroup>
 </Project>

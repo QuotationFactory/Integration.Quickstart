@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
+using Integration.Common.Classes;
+using Integration.Common.Extensions;
+using Integration.Common.Services;
 using MediatR;
-using MetalHeaven.Integration.Shared.Classes;
-using MetalHeaven.Integration.Shared.Extensions;
-using MetalHeaven.Integration.Shared.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -18,13 +18,13 @@ namespace Rhodium24.Host.Features.AgentOutputFile
         private readonly IMediator _mediator;
         private readonly ILogger<AgentOutputFileWatcherService> _logger;
 
-        public AgentOutputFileWatcherService(IMediator mediator, IOptions<AgentSettings> options, ILogger<AgentOutputFileWatcherService> logger) : base(options)
+        public AgentOutputFileWatcherService(IMediator mediator, IOptions<AgentSettings> options, ILogger<AgentOutputFileWatcherService> logger)
         {
             _mediator = mediator;
             _logger = logger;
 
             // add file watcher to the agent output directory
-            AddFileWatcher(AgentSettings.GetOrCreateAgentOutputDirectory(createIfNotExists: true), "*.json");
+            AddFileWatcher(options.Value.GetOrCreateAgentOutputDirectory(createIfNotExists: true), "*.json");
         }
 
         protected override void OnAllChanges(object sender, FileSystemEventArgs e)

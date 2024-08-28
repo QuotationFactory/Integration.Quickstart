@@ -1,11 +1,37 @@
-using System.IO;
-using MetalHeaven.Integration.Shared.Classes;
+﻿using Integration.Common.Classes;
 
-namespace Rhodium24.Host.Features.AgentOutputFile
+namespace Integration.Common.Extensions
 {
-    public static class SettingsExtension
+    public static class AgentSettingsExtensions
     {
-        public static string GetOrCreateDirectory(string rootDirectoryPath, string subDir = "")
+        public static string GetOrCreateAgentInputDirectory(this AgentSettings settings, string integrationName = "", bool createIfNotExists = false)
+        {
+            var inputDirectory = Path.Combine(settings.RootDirectory, integrationName, "Input");
+            return inputDirectory.DirectoryExistsOrCreate(createIfNotExists) ? inputDirectory : string.Empty;
+        }
+
+        public static string GetOrCreateAgentOutputDirectory(this AgentSettings settings, string integrationName = "", bool createIfNotExists = false)
+        {
+            var outputDirectory = Path.Combine(settings.RootDirectory, integrationName, "Output");
+            return outputDirectory.DirectoryExistsOrCreate(createIfNotExists) ? outputDirectory : string.Empty;
+        }
+
+        public static bool DirectoryExistsOrCreate(this string directory, bool createIfNotExists = false)
+        {
+            if (string.IsNullOrWhiteSpace(directory))
+                return false;
+
+            if (Directory.Exists(directory))
+                return true;
+
+            if (!createIfNotExists) return false;
+
+            Directory.CreateDirectory(directory);
+
+            return Directory.Exists(directory);
+        }
+
+         public static string GetOrCreateDirectory(string rootDirectoryPath, string subDir = "")
         {
             var totalPath = Path.Combine(rootDirectoryPath, subDir);
 
