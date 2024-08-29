@@ -7,51 +7,50 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Rhodium24.Host.Features.AgentOutputFile
+namespace Integration.Host.Features.AgentOutputFile;
+
+/// <summary>
+/// Service that watches on the output directory of the agent for *.json files
+/// Publishes an AgentOutputFileCreated notification if a file is created
+/// </summary>
+public class AgentOutputFileWatcherService : FileWatcherService
 {
-    /// <summary>
-    /// Service that watches on the output directory of the agent for *.json files
-    /// Publishes an AgentOutputFileCreated notification if a file is created
-    /// </summary>
-    public class AgentOutputFileWatcherService : FileWatcherService
+    private readonly IMediator _mediator;
+    private readonly ILogger<AgentOutputFileWatcherService> _logger;
+
+    public AgentOutputFileWatcherService(IMediator mediator, IOptions<IntegrationSettings> options, ILogger<AgentOutputFileWatcherService> logger)
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<AgentOutputFileWatcherService> _logger;
+        _mediator = mediator;
+        _logger = logger;
 
-        public AgentOutputFileWatcherService(IMediator mediator, IOptions<AgentSettings> options, ILogger<AgentOutputFileWatcherService> logger)
+        // add file watcher to the agent output directory
+        AddFileWatcher(options.Value.GetOrCreateAgentOutputDirectory(createIfNotExists: true), "*.json");
+    }
+
+    protected override void OnAllChanges(object sender, FileSystemEventArgs e)
+    {
+        try
         {
-            _mediator = mediator;
-            _logger = logger;
-
-            // add file watcher to the agent output directory
-            AddFileWatcher(options.Value.GetOrCreateAgentOutputDirectory(createIfNotExists: true), "*.json");
+            switch (e.ChangeType)
+            {
+                case WatcherChangeTypes.Created:
+                    _mediator.Publish(new AgentOutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
+                    break;
+                case WatcherChangeTypes.Deleted:
+                    break;
+                case WatcherChangeTypes.Changed:
+                    break;
+                case WatcherChangeTypes.Renamed:
+                    break;
+                case WatcherChangeTypes.All:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
-
-        protected override void OnAllChanges(object sender, FileSystemEventArgs e)
+        catch (Exception ex)
         {
-            try
-            {
-                switch (e.ChangeType)
-                {
-                    case WatcherChangeTypes.Created:
-                        _mediator.Publish(new AgentOutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
-                        break;
-                    case WatcherChangeTypes.Deleted:
-                        break;
-                    case WatcherChangeTypes.Changed:
-                        break;
-                    case WatcherChangeTypes.Renamed:
-                        break;
-                    case WatcherChangeTypes.All:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error while processing {event} for file {filePath}", e.ChangeType, e.FullPath);
-            }
+            _logger.LogError(ex, "Error while processing {event} for file {filePath}", e.ChangeType, e.FullPath);
         }
     }
 }

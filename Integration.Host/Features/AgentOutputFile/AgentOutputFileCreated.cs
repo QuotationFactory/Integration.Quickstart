@@ -1,14 +1,13 @@
 ﻿using MediatR;
 
-namespace Rhodium24.Host.Features.AgentOutputFile
-{
-    public class AgentOutputFileCreated : INotification
-    {
-        public string FilePath { get; }
+namespace Integration.Host.Features.AgentOutputFile;
 
-        public AgentOutputFileCreated(string filePath)
-        {
-            FilePath = filePath;
-        }
+public class AgentOutputFileCreated : INotification
+{
+    public string FilePath { get; }
+
+    public AgentOutputFileCreated(string filePath)
+    {
+        FilePath = filePath;
     }
 }
