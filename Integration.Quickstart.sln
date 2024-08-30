@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration.Host", "Integration.Host\Integration.Host.csproj", "{C5EC1BA0-F9F8-4501-9C04-AC2BE158B469}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration.Host", "src\Integration.Host\Integration.Host.csproj", "{C5EC1BA0-F9F8-4501-9C04-AC2BE158B469}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9CB7F849-8861-4EE9-9129-A7A0C0D14710}"
 ProjectSection(SolutionItems) = preProject
 	.editorconfig = .editorconfig
 EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration.Common", "Integration.Common\Integration.Common.csproj", "{123BFD3A-2364-4AF4-8D92-E9E54E98140E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration.Common", "src\Integration.Common\Integration.Common.csproj", "{123BFD3A-2364-4AF4-8D92-E9E54E98140E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
