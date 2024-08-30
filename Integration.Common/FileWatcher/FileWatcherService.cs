@@ -1,7 +1,6 @@
-﻿using Integration.Common.FileWatcher;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 
-namespace Integration.Common.Services;
+namespace Integration.Common.FileWatcher;
 
 public abstract class FileWatcherService : IHostedService
 {

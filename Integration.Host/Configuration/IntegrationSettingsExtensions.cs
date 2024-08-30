@@ -1,8 +1,8 @@
-﻿using Integration.Common.Classes;
+﻿using System.IO;
 
-namespace Integration.Common.Extensions;
+namespace Integration.Host.Configuration;
 
-public static class Extensions
+public static class IntegrationSettingsExtensions
 {
     public static string GetOrCreateInputDirectory(this IntegrationSettings settings, string integrationName = "", bool createIfNotExists = false)
     {
@@ -43,6 +43,7 @@ public static class Extensions
 
         return totalPath;
     }
+
     public static string GetInputDirectory(this IntegrationSettings settings) => GetOrCreateDirectory(Path.Combine(settings.RootDirectory, "Input"));
     public static string GetOutputDirectory(this IntegrationSettings settings) => GetOrCreateDirectory(Path.Combine(settings.RootDirectory, "Output"));
     public static string GetProcessingDirectory(this IntegrationSettings settings) => GetOrCreateDirectory(settings.GetOutputDirectory(), "Processing");
@@ -51,6 +52,7 @@ public static class Extensions
     public static string MoveFileToProcessing(this IntegrationSettings settings, string filePath) => filePath.MoveFileToDirectory(settings.GetProcessingDirectory());
     public static string MoveFileToProcessed(this IntegrationSettings settings, string filePath) => filePath.MoveFileToDirectory(settings.GetProcessedDirectory());
     public static string MoveFileToError(this IntegrationSettings settings, string filePath) => filePath.MoveFileToDirectory(settings.GetErrorDirectory());
+
     public static string MoveFileToInput(this IntegrationSettings settings, string filePath)
     {
         if (!File.Exists(filePath))
@@ -64,6 +66,7 @@ public static class Extensions
 
         return destFileName;
     }
+
     public static string MoveFileToDirectory(this string filePath, string directoryPath)
     {
         if (!File.Exists(filePath))
@@ -77,6 +80,7 @@ public static class Extensions
         var destFileName = Path.Combine(directoryPath, fileInfo.Name);
         return filePath.MoveFile(destFileName);
     }
+
     public static string MoveFile(this string filePath, string destinationFilePath)
     {
         if (!File.Exists(filePath))

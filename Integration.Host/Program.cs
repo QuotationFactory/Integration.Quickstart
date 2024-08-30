@@ -1,5 +1,6 @@
 using System;
-using Integration.Common.Classes;
+using Integration.Common;
+using Integration.Host.Configuration;
 using Integration.Host.Features.OutputFile;
 using MetalHeaven.Agent.Shared.External.Classes;
 using MetalHeaven.Agent.Shared.External.Interfaces;

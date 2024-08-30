@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using Integration.Common.Classes;
-using Integration.Common.Extensions;
-using Integration.Common.Services;
+using Integration.Common;
+using Integration.Common.FileWatcher;
+using Integration.Host.Configuration;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

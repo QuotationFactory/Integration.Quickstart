@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Integration.Common.Classes;
+namespace Integration.Host.Configuration;
 
 /// <summary>
 /// Setting about the Integration Settings
