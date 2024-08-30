@@ -4,13 +4,13 @@ namespace Integration.Common.Extensions;
 
 public static class Extensions
 {
-    public static string GetOrCreateAgentInputDirectory(this IntegrationSettings settings, string integrationName = "", bool createIfNotExists = false)
+    public static string GetOrCreateInputDirectory(this IntegrationSettings settings, string integrationName = "", bool createIfNotExists = false)
     {
         var inputDirectory = Path.Combine(settings.RootDirectory, integrationName, "Input");
         return inputDirectory.DirectoryExistsOrCreate(createIfNotExists) ? inputDirectory : string.Empty;
     }
 
-    public static string GetOrCreateAgentOutputDirectory(this IntegrationSettings settings, string integrationName = "", bool createIfNotExists = false)
+    public static string GetOrCreateOutputDirectory(this IntegrationSettings settings, string integrationName = "", bool createIfNotExists = false)
     {
         var outputDirectory = Path.Combine(settings.RootDirectory, integrationName, "Output");
         return outputDirectory.DirectoryExistsOrCreate(createIfNotExists) ? outputDirectory : string.Empty;
@@ -51,7 +51,7 @@ public static class Extensions
     public static string MoveFileToProcessing(this IntegrationSettings settings, string filePath) => filePath.MoveFileToDirectory(settings.GetProcessingDirectory());
     public static string MoveFileToProcessed(this IntegrationSettings settings, string filePath) => filePath.MoveFileToDirectory(settings.GetProcessedDirectory());
     public static string MoveFileToError(this IntegrationSettings settings, string filePath) => filePath.MoveFileToDirectory(settings.GetErrorDirectory());
-    public static string MoveFileToAgentInput(this IntegrationSettings settings, string filePath)
+    public static string MoveFileToInput(this IntegrationSettings settings, string filePath)
     {
         if (!File.Exists(filePath))
             throw new FileNotFoundException("File not found", filePath);
@@ -86,7 +86,7 @@ public static class Extensions
 
         while (File.Exists(result))
         {
-            result = Path.Combine(Path.GetDirectoryName(destinationFilePath), $"{Path.GetFileNameWithoutExtension(destinationFilePath)} (1){Path.GetExtension(destinationFilePath)}");
+            result = Path.Combine(Path.GetDirectoryName(destinationFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(destinationFilePath)} (1){Path.GetExtension(destinationFilePath)}");
         }
 
         File.Move(filePath, result);

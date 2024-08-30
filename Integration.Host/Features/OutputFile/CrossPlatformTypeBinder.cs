@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using Newtonsoft.Json.Serialization;
 
-namespace Integration.Host.Features.AgentOutputFile;
+namespace Integration.Host.Features.OutputFile;
 
 public class CrossPlatformTypeBinder : DefaultSerializationBinder
 {

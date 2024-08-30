@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace Integration.Common.Requests;
 
-public class WaitForAgentOutputFile : IRequest
+public class WaitForOutputFile : IRequest
 {
     public class Request : IRequest<string>
     {
@@ -30,14 +30,14 @@ public class WaitForAgentOutputFile : IRequest
 
         public async Task<string> Handle(Request request, CancellationToken cancellationToken)
         {
-            // define agent output directory
-            var agentOutputDirectory = _settings.GetOrCreateAgentOutputDirectory(request.IntegrationName, true);
+            // define output directory
+            var outputDirectory = _settings.GetOrCreateOutputDirectory(request.IntegrationName, true);
 
             // loop while cancel token is not cancelled and no files are found
             while (!cancellationToken.IsCancellationRequested)
             {
                 // search files in output directory
-                var files = Directory.GetFiles(agentOutputDirectory, request.FileName);
+                var files = Directory.GetFiles(outputDirectory, request.FileName);
 
                 // return response with files if any
                 if (files.Any())

@@ -43,18 +43,18 @@ public class RequestIntegrationSettings : IRequest
                 IntegrationId = request.IntegrationId
             };
 
-            // sent message with agent
+            // sent message
             await _mediator
-                .Send(new SendMessageWithAgent.Request(message, request.IntegrationName), cancellationToken)
+                .Send(new SendMessage.Request(message, request.IntegrationName), cancellationToken)
                 .ConfigureAwait(false);
 
             // wait for response
-            var file = await _mediator.Send(new WaitForAgentOutputFile.Request("Settings.json", request.IntegrationName),
+            var file = await _mediator.Send(new WaitForOutputFile.Request("Settings.json", request.IntegrationName),
                 cancellationToken).ConfigureAwait(false);
 
             // throw error if there are no files found
             if (string.IsNullOrEmpty(file))
-                throw new Exception("Settings file not provided by Agent");
+                throw new Exception("Settings file not provided by edge connector");
 
             return new Response(file);
         }

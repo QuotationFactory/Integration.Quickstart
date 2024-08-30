@@ -17,7 +17,7 @@ public class IntegrationOutputFileWatcher : FileWatcherService
     public IntegrationOutputFileWatcher(IMediator mediator, BaseIntegration integration, IOptions<IntegrationSettings> options)
     {
         _mediator = mediator;
-        var integrationOutputDirectory = options.Value.GetOrCreateAgentOutputDirectory(integration.Name, true);
+        var integrationOutputDirectory = options.Value.GetOrCreateOutputDirectory(integration.Name, true);
 
         AddFileWatcher(integrationOutputDirectory, "*.*");
     }

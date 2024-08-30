@@ -7,24 +7,24 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Integration.Host.Features.AgentOutputFile;
+namespace Integration.Host.Features.OutputFile;
 
 /// <summary>
-/// Service that watches on the output directory of the agent for *.json files
-/// Publishes an AgentOutputFileCreated notification if a file is created
+/// Service that watches on the output directory of the edge connector for *.json files
+/// Publishes an OutputFileCreated notification if a file is created
 /// </summary>
-public class AgentOutputFileWatcherService : FileWatcherService
+public class OutputFileWatcherService : FileWatcherService
 {
     private readonly IMediator _mediator;
-    private readonly ILogger<AgentOutputFileWatcherService> _logger;
+    private readonly ILogger<OutputFileWatcherService> _logger;
 
-    public AgentOutputFileWatcherService(IMediator mediator, IOptions<IntegrationSettings> options, ILogger<AgentOutputFileWatcherService> logger)
+    public OutputFileWatcherService(IMediator mediator, IOptions<IntegrationSettings> options, ILogger<OutputFileWatcherService> logger)
     {
         _mediator = mediator;
         _logger = logger;
 
-        // add file watcher to the agent output directory
-        AddFileWatcher(options.Value.GetOrCreateAgentOutputDirectory(createIfNotExists: true), "*.json");
+        // add file watcher to the output directory
+        AddFileWatcher(options.Value.GetOrCreateOutputDirectory(createIfNotExists: true), "*.json");
     }
 
     protected override void OnAllChanges(object sender, FileSystemEventArgs e)
@@ -34,7 +34,7 @@ public class AgentOutputFileWatcherService : FileWatcherService
             switch (e.ChangeType)
             {
                 case WatcherChangeTypes.Created:
-                    _mediator.Publish(new AgentOutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
+                    _mediator.Publish(new OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
                     break;
                 case WatcherChangeTypes.Deleted:
                     break;

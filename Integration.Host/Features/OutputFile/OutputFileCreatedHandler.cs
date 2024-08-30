@@ -19,24 +19,24 @@ using Versioned.ExternalDataContracts.Contracts.Article;
 using Versioned.ExternalDataContracts.Contracts.Project;
 using Versioned.ExternalDataContracts.Enums;
 
-namespace Integration.Host.Features.AgentOutputFile;
+namespace Integration.Host.Features.OutputFile;
 
-public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFileCreated>
+public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
 {
     private readonly IntegrationSettings _options;
     private readonly IAgentMessageSerializationHelper _agentMessageSerializationHelper;
-    private readonly ILogger<AgentOutputFileCreatedHandler> _logger;
+    private readonly ILogger<OutputFileCreatedHandler> _logger;
     private static Random _random = new Random();
 
-    public AgentOutputFileCreatedHandler(IOptions<IntegrationSettings> options,
-        IAgentMessageSerializationHelper agentMessageSerializationHelper, ILogger<AgentOutputFileCreatedHandler> logger)
+    public OutputFileCreatedHandler(IOptions<IntegrationSettings> options,
+        IAgentMessageSerializationHelper agentMessageSerializationHelper, ILogger<OutputFileCreatedHandler> logger)
     {
         _options = options.Value;
         _agentMessageSerializationHelper = agentMessageSerializationHelper;
         _logger = logger;
     }
 
-    public async Task Handle(AgentOutputFileCreated notification, CancellationToken cancellationToken)
+    public async Task Handle(OutputFileCreated notification, CancellationToken cancellationToken)
     {
         _logger.LogInformation("File created: {filePath}", notification.FilePath);
 
@@ -54,7 +54,7 @@ public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFil
             return;
         }
 
-        await HandleAgentMessage(jsonFilePath);
+        await HandleMessage(jsonFilePath);
     }
 
     private async Task HandleProjectFiles(string jsonFilePath, string zipFilePath)
@@ -143,8 +143,8 @@ public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFil
             // save json to temp file
             await File.WriteAllTextAsync(tempFile, responseJson);
 
-            // move file to agent input directory
-            _options.MoveFileToAgentInput(tempFile);
+            // move file to input directory
+            _options.MoveFileToInput(tempFile);
         }
         catch (Exception ex)
         {
@@ -178,22 +178,22 @@ public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFil
         return zipFiles;
     }
 
-    private async Task HandleAgentMessage(string jsonFilePath)
+    private async Task HandleMessage(string jsonFilePath)
     {
         try
         {
             // read json from file
             var fileContent = await File.ReadAllTextAsync(jsonFilePath);
 
-            // convert json to agent message
-            var agentMessage = _agentMessageSerializationHelper.FromJson(fileContent);
+            // convert json to message
+            var message = _agentMessageSerializationHelper.FromJson(fileContent);
 
-            _logger.LogInformation("Processing agent message type: '{Type}'", agentMessage.MessageType);
+            _logger.LogInformation("Processing message type: '{Type}'", message.MessageType);
 
-            IAgentMessage agentMessageResponse = null;
+            IAgentMessage messageResponse;
 
-            // process agent message
-            switch (agentMessage)
+            // process message
+            switch (message)
             {
                 //process addressBookSyncRequest
                 case RequestAddressBookSyncMessage addressBookSyncRequest:
@@ -201,7 +201,7 @@ public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFil
                     // implement business logic here
 
                     // create addressBookSyncRequestResponse message
-                    agentMessageResponse = new RequestAddressBookSyncMessageResponse
+                    messageResponse = new RequestAddressBookSyncMessageResponse
                     {
                         Relations = new AgentRelationImportRequest[]
                         {
@@ -249,7 +249,7 @@ public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFil
 
                     // create ArticleSyncRequestResponse message
 
-                    agentMessageResponse = new RequestArticlesSyncMessageResponse
+                    messageResponse = new RequestArticlesSyncMessageResponse
                     {
                         Articles = new AgentArticleImportRequest[]
                         {
@@ -303,7 +303,7 @@ public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFil
                     break;
                 case RequestManufacturabilityCheckOfPartTypeMessage manufacturabilityCheck:
                     {
-                        agentMessageResponse = new RequestManufacturabilityCheckOfPartTypeMessageResponse
+                        messageResponse = new RequestManufacturabilityCheckOfPartTypeMessageResponse
                         {
                             ProjectId = manufacturabilityCheck.ProjectId,
                             PartTypeId = manufacturabilityCheck.PartType.Id,
@@ -339,7 +339,7 @@ public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFil
                     }
                     break;
                 case RequestProductionTimeEstimationOfPartTypeMessage productionTimeEstimation:
-                    agentMessageResponse = new RequestProductionTimeEstimationOfPartTypeMessageResponse
+                    messageResponse = new RequestProductionTimeEstimationOfPartTypeMessageResponse
                     {
                         ProjectId = productionTimeEstimation.ProjectId,
                         PartTypeId = productionTimeEstimation.PartType.Id,
@@ -359,7 +359,7 @@ public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFil
                     };
                     break;
                 case RequestAdditionalCostsOfPartTypeMessage additionalCosts:
-                    agentMessageResponse = new RequestAdditionalCostsOfPartTypeMessageResponse
+                    messageResponse = new RequestAdditionalCostsOfPartTypeMessageResponse
                     {
                         ProjectId = additionalCosts.ProjectId,
                         PartTypeId = additionalCosts.PartType.Id,
@@ -381,7 +381,7 @@ public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFil
                 case ProjectStatusChangedMessage projectStatusChanged:
                     {
                         //optional ChangeProjectStatusMessage
-                        agentMessageResponse = new ChangeProjectStatusMessage()
+                        messageResponse = new ChangeProjectStatusMessage()
                         {
                             ProjectId = projectStatusChanged.ProjectId,
                             ProjectState = ProjectStatesV1.Produced
@@ -407,7 +407,7 @@ public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFil
                 case ChangeProjectOrderNumberMessage changeProjectOrderNumber:
                     {
                         //optional ChangeProjectOrderNumberMessage
-                        agentMessageResponse = new ChangeProjectOrderNumberMessage()
+                        messageResponse = new ChangeProjectOrderNumberMessage()
                         {
                             ProjectId = changeProjectOrderNumber.ProjectId,
                             OrderNumber = "2024123456789"
@@ -415,29 +415,28 @@ public class AgentOutputFileCreatedHandler : INotificationHandler<AgentOutputFil
                         break;
                     }
                 default:
-                    throw new Exception($"Cannot process agent message {agentMessage.MessageType}");
+                    throw new Exception($"Cannot process message {message.MessageType}");
             }
 
-            if (agentMessageResponse is not null)
-            {
-                // convert agent response message to json
-                var json = _agentMessageSerializationHelper.ToJson(agentMessageResponse);
 
-                // get temp file path
-                var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
+            // convert response message to json
+            var json = _agentMessageSerializationHelper.ToJson(messageResponse);
 
-                // save json to temp file
-                await File.WriteAllTextAsync(tempFile, json);
+            // get temp file path
+            var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
 
-                // move file to agent input directory
-                _options.MoveFileToAgentInput(tempFile);
-            }
+            // save json to temp file
+            await File.WriteAllTextAsync(tempFile, json);
 
-            _logger.LogInformation("Agent message file successfully processed");
+            // move file to input directory
+            _options.MoveFileToInput(tempFile);
+
+
+            _logger.LogInformation("message file successfully processed");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occured while handling agent message");
+            _logger.LogError(ex, "Error occured while handling message");
         }
     }
 }

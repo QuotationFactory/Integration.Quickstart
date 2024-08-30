@@ -1,6 +1,6 @@
 using System;
 using Integration.Common.Classes;
-using Integration.Host.Features.AgentOutputFile;
+using Integration.Host.Features.OutputFile;
 using MetalHeaven.Agent.Shared.External.Classes;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,20 +41,20 @@ public static class Program
             .UseWindowsService()
             .ConfigureServices((hostContext, services) =>
             {
-                // register agent message serialization helper
+                // register message serialization helper
                 services.AddTransient<IAgentMessageSerializationHelper, ExternalAgentMessageSerializationHelper>();
 
-                // register agent settings
+                // register settings
                 services.AddOptions<IntegrationSettings>().Bind(hostContext.Configuration.GetSection("IntegrationSettings"))
                     .ValidateDataAnnotations();
 
-                // register agent output file watcher service
-                services.AddHostedService<AgentOutputFileWatcherService>();
+                // register output file watcher service
+                services.AddHostedService<OutputFileWatcherService>();
 
                 // register MediatR with current assembly
                 services.AddMediatR(cfg =>
                 {
-                    cfg.RegisterServicesFromAssembly(typeof(AgentOutputFileWatcherService).Assembly);
+                    cfg.RegisterServicesFromAssembly(typeof(OutputFileWatcherService).Assembly);
                 });
             });
 }

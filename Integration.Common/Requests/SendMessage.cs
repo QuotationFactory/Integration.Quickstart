@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace Integration.Common.Requests;
 
-public class SendMessageWithAgent : IRequest
+public class SendMessage : IRequest
 {
     public class Request : IRequest<Response>
     {
@@ -45,13 +45,13 @@ public class SendMessageWithAgent : IRequest
             // write json to temp file
             await File.WriteAllTextAsync(tempFilePath, json, cancellationToken).ConfigureAwait(false);
 
-            // define agent input directory
-            var agentInputDirectory = _settings.GetOrCreateAgentInputDirectory(request.IntegrationName, true);
+            // define input directory
+            var inputDirectory = _settings.GetOrCreateInputDirectory(request.IntegrationName, true);
 
             // define new path to move temp file to
-            var destinationFilePath = Path.Combine(agentInputDirectory, $"{Guid.NewGuid()}.json");
+            var destinationFilePath = Path.Combine(inputDirectory, $"{Guid.NewGuid()}.json");
 
-            // move temp file to agent input directory
+            // move temp file to input directory
             File.Move(tempFilePath, destinationFilePath);
 
             // return result
