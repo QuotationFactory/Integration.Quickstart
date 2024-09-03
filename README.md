@@ -1,29 +1,29 @@
-# Quotation Factory Basic Integration Quickstart
+# Integration Quickstart
 
 ## Introduction
 
-In this quickstart we demonstrate how you could build an .net 8 host that process files from Quotation Factory.  
+In this quickstart we demonstrate how you could build an .net 8 host that process files from Quotation Factory.
 We use the Quotation Factory Edge Connector that connects with Quotation Factory and downloads the file to the Output directory.
 
 ## Edge Connector - root directory
 
-When you create a QF Edge Connector in the portal you need to provide a 'Root directory' this is the location of the directory the QF Edge Connector uses to operate with.  
-Output files from Quotation Factory are stored in the Output directory inside the root directory of the QF Edge Connector.  
+When you create a QF Edge Connector in the portal you need to provide a 'Root directory' this is the location of the directory the QF Edge Connector uses to operate with.
+Output files from Quotation Factory are stored in the Output directory inside the root directory of the QF Edge Connector.
 
 For example:
-if the QF Edge Connector has the root directory configured like 'C:\QfEdgeConnector\Exchange', the Output files will be stored in 'C:\QfEdgeConnector\Exchange\Output'.
+if the QF Edge Connector has the root directory configured like 'C:\Qf\EdgeConnector\Exchange', the Output files will be stored in 'C:\Qf\EdgeConnector\Exchange\Output'.
 
-The **Root directory** needs to be configured in the appsettings.json or appsettings.development.json in this project.
+The **Root directory** needs to be configured in the appsettings.json in this project.
 
 ## How it works
 
-If we run the Quotation Factory.Host project inside this solution and we do an 'Export from Quotation Factory' the filewatcher will notice this new file the QF Edge Connector created and it will publish a MediatR notification 'AgentOutputFileCreated'.
+If we run the Integration.Host project inside this solution and we do an 'Export from Quotation Factory' the filewatcher will notice this new file the Edge Connector created and it will publish a MediatR notification 'OutputFileCreated'.
 
-The 'AgentOutputFileCreatedHandler' will process this notification and will read the file and deserialize it to the Project class.
+The 'OutputFileCreatedHandler' will process this notification and will read the file and deserialize it to the Project class or process the message request
 
 ## Export from Quotation Factory
 
-When change the status of a project inside Quotation Factory to Quoted or Ordered and export will be triggered and if the QF Edge Connector is configured and running it will download the file to the Output directory of that connector.
+When change the status of a project inside Quotation Factory to Quoted or Ordered and export will be triggered and if the Edge Connector is configured and running it will download the file to the Output directory of that connector.
 
 ## Help needed?
 
@@ -33,11 +33,11 @@ Please create an issue if you got a suggestion or if you need help.
 
 ## Overview
 
-The QF Edge Connector (previously named QF Agent) enables robust, custom integrations with the Quotation Factory cloud platform. Developers can leverage the example project provided on GitHub as a starting point for building their own integrations. Access the project here: [QF.Basic.Integration.Quickstart Repository](https://github.com/QuotationFactory/QF.Basic.Integration.Quickstart/tree/master).
+The QF Edge Connector (previously named QF Agent) enables robust, custom integrations with the Quotation Factory cloud platform. Developers can leverage the example project provided on GitHub as a starting point for building their own integrations. Access the project here: [Integration.Quickstart Repository](https://github.com/QuotationFactory/Integration.Quickstart/tree/master).
 
-## Message Handling in QF Edge Connector
+## Message Handling in Edge Connector
 
-The `AgentOutputFileCreatedHandler.cs` class within the example project includes various message handlers that facilitate interactions between your local systems and the QF cloud platform. Below is a detailed table summarizing the messages, their purposes, and the corresponding response objects.
+The `OutputFileCreatedHandler.cs` class within the example project includes various message handlers that facilitate interactions between your local systems and the QF cloud platform. Below is a detailed table summarizing the messages, their purposes, and the corresponding response objects.
 
 | Message | Response Object | Description |
 |---------|-----------------|-------------|
@@ -52,12 +52,12 @@ The `AgentOutputFileCreatedHandler.cs` class within the example project includes
 
 ## Building Your Integration
 
-To develop your own integration using the QF Edge Connector, follow these steps:
+To develop your own integration using the Edge Connector, follow these steps:
 
 1. **Clone the Example Project**: Start by cloning the example project from the GitHub repository.
-2. **Review the Example Handlers**: Understand how the handlers in the `AgentOutputFileCreatedHandler.cs` class interact with the Quotation Factory platform.
+2. **Review the Example Handlers**: Understand how the handlers in the `OutputFileCreatedHandler.cs` class interact with the Quotation Factory platform.
 3. **Customize Message Handlers**: Modify existing handlers or create new ones to meet the specific needs of your integration.
-4. **Test Your Integration**: Thoroughly test the integration in a controlled environment to ensure it functions correctly and interacts with the QF platform as expected.
+4. **Test Your Integration**: Thoroughly test the integration in a controlled environment to ensure it functions correctly and interacts with the platform as expected.
 5. **Deploy**: Once testing is complete, deploy your custom integration to production.
 
 ### Best Practices
@@ -66,5 +66,5 @@ To develop your own integration using the QF Edge Connector, follow these steps:
 - **Test Thoroughly**: Before deploying your handlers, thoroughly test them to ensure they handle all expected scenarios correctly.
 
 ## Conclusion
-Building integrations with the QF Edge Connector provides a powerful way to enhance the functionality of the Quotation Factory platform, enabling customized workflows and improved data management. By following this guide and utilizing the provided example project, you can effectively develop robust integrations tailored to your specific needs.
+Building integrations with the Edge Connector provides a powerful way to enhance the functionality of the Quotation Factory platform, enabling customized workflows and improved data management. By following this guide and utilizing the provided example project, you can effectively develop robust integrations tailored to your specific needs.
 
