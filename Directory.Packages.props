@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="MediatR" Version="12.4.0"/>
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.2"/>
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0"/>
+    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0"/>
+    <PackageVersion Include="Serilog" Version="4.0.1"/>
+    <PackageVersion Include="Serilog.Extensions.Hosting" Version="8.0.0"/>
+    <PackageVersion Include="Serilog.Extensions.Logging" Version="8.0.0"/>
+    <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0"/>
+    <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0"/>
+    <PackageVersion Include="SharpZipLib" Version="1.4.2"/>
+
+    <PackageVersion Include="MetalHeaven.Agent.Shared.External" Version="0.1.22"/>
+    <PackageVersion Include="MetalHeaven.ExternalDataContracts" Version="0.4.2"/>
+  </ItemGroup>
+</Project>
