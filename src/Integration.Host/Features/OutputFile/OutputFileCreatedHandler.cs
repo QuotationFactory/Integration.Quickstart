@@ -226,7 +226,8 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
                                 SegmentName = "A",
                                 Tags = Array.Empty<string>(),
                                 VatNumber = "",
-                                VatRatio = .21,
+                                // This is the VAT rate in percentage from 0 to 100
+                                VatRatio = 21.0
                                 // CoCNumber = "",
                                 // CoCCountryCode = "NL",
                                 // CoCCountryName = "Netherlands"
