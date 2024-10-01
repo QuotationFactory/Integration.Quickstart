@@ -263,6 +263,13 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
                                 Price = 123.45m,
                                 CurrencyIsoCode = "EUR",
                                 Quantity = 1,
+                                /// <summary>
+                                /// Codes used in the integrations can be found in Recommendation No. 20: Codes for Units of measure used in international trade van de UNECE.
+                                /// https://unece.org/trade/uncefact/cl-recommendations
+                                /// https://unece.org/sites/default/files/2023-10/rec20_Rev7e_2010.zip
+                                /// see: rec20_Rev7e_2010.xls
+                                /// see: rec20_Rev7e_2010.pdf
+                                /// </summary>
                                 UnitIsoCode = "C62", // one piece
                                 HideInPortal = false // null / true / false
                             },
@@ -276,6 +283,13 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
                                 Quantity = 1,
                                 UnitIsoCode = "C62", // one piece
                                 HideInPortal = false, // null / true / false
+                                /// <summary>
+                                /// Codes used in the integrations can be found in Recommendation No. 20: Codes for Units of measure used in international trade van de UNECE.
+                                /// https://unece.org/trade/uncefact/cl-recommendations
+                                /// https://unece.org/sites/default/files/2023-10/rec20_Rev7e_2010.zip
+                                /// see: rec20_Rev7e_2010.xls
+                                /// see: rec20_Rev7e_2010.pdf
+                                /// </summary>
                                 ScalePriceUnitIsoCode = "C62", // one piece
                                 ScalePrices =
                                 {
