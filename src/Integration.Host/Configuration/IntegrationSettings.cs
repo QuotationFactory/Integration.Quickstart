@@ -18,4 +18,20 @@ public class IntegrationSettings
     /// </remarks>
     [Required]
     public required string RootDirectory { get; set; }
+
+    public string WatchDirectory { get; set; }
+    public string WatchFilter { get; set; }
+
+    [Required]
+    public string TenantId { get; set; }
+
+    [Required]
+    public string ClientId { get; set; }
+
+    [Required]
+    public string ClientSecret { get; set; }
+
+    public string DriveId { get; set; }
+
+    public string TargetDirectory { get; set; }    
 }

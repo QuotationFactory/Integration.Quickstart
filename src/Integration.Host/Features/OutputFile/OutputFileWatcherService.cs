@@ -22,9 +22,12 @@ public class OutputFileWatcherService : FileWatcherService
     {
         _mediator = mediator;
         _logger = logger;
+        
+        var path = options.Value.WatchDirectory ?? options.Value.GetOrCreateOutputDirectory(createIfNotExists: true);
+        var filter = options.Value.WatchFilter ?? "*.json";
 
         // add file watcher to the output directory
-        AddFileWatcher(options.Value.GetOrCreateOutputDirectory(createIfNotExists: true), "*.json");
+        AddFileWatcher(path, filter);
     }
 
     protected override void OnAllChanges(object sender, FileSystemEventArgs e)
