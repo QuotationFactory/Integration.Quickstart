@@ -11,6 +11,7 @@ using Integration.Host.Configuration;
 using MediatR;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
+using MetalHeaven.Agent.Shared.External.TimeRegistration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -51,11 +52,72 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
         // check if json & zip file exists it means that a project has been exported
         if (File.Exists(jsonFilePath) && File.Exists(zipFilePath))
         {
-            await HandleProjectFiles(jsonFilePath, zipFilePath);
+            await HandleProjectFilesAndReturnTimeRegistrationExportRecords(jsonFilePath, zipFilePath);
+            // await HandleProjectFiles(jsonFilePath, zipFilePath);
             return;
         }
 
         await HandleMessage(jsonFilePath);
+    }
+
+    private async Task HandleProjectFilesAndReturnTimeRegistrationExportRecords(string jsonFilePath, string zipFilePath)
+    {
+        try
+        {
+            // read zip content
+            var zipContent = await ReadProjectZipFileAsync(zipFilePath);
+
+            // log zip content
+            foreach (var (fileName, fileBytes) in zipContent)
+                _logger.LogInformation($"Found file '{fileName}' in zipfile, size {fileBytes.Length}.");
+
+            // define json serializer settings
+            var settings = new JsonSerializerSettings();
+            settings.SetJsonSettings();
+            settings.AddJsonConverters();
+            settings.SerializationBinder = new CrossPlatformTypeBinder();
+
+            // read all text from file that is created
+            var json = await File.ReadAllTextAsync(jsonFilePath);
+
+            // convert json to project object
+            var project = JsonConvert.DeserializeObject<ProjectV1>(json, settings);
+
+            _logger.LogInformation("Project deserialized succesfully, project id: {id}", project.Id);
+
+            // optional response if your using this to export to ERP.
+            var response = new AgentTimeRegistrationExport
+            {
+                Records = project.BoM.PartList.SelectMany(x => x.Activities.Where(z=> z.Resource?.ResourceId is not null).SelectMany(z =>
+                {
+                    var productionTimeInSeconds = Random.Shared.Next(60, 360);
+                    var camTimeInSeconds = Random.Shared.Next(30, 180);
+
+                    return new List<AgentTimeRegistrationExportRecord>
+                    {
+                        new(x.Id, z.WorkingStepType, productionTimeInSeconds, x.Financial.TotalProjectQuantity, AgentTimeRegistrationSource.Production, project.Id, z.Resource?.ResourceId),
+                        new(x.Id, z.WorkingStepType, camTimeInSeconds, x.Financial.TotalProjectQuantity, AgentTimeRegistrationSource.CAM, project.Id, z.Resource?.ResourceId),
+                    };
+                })).ToList()
+            };
+
+            var responseJson = _agentMessageSerializationHelper.ToJson(response);
+
+            // get temp file path
+            var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
+
+            // save json to temp file
+            await File.WriteAllTextAsync(tempFile, responseJson);
+
+            // move file to input directory
+            _options.MoveFileToInput(tempFile);
+
+            _logger.LogInformation("'{Count}' Generated random time registration export", response.Records.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occured while handling project files");
+        }
     }
 
     private async Task HandleProjectFiles(string jsonFilePath, string zipFilePath)
@@ -293,16 +355,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
                                 ScalePriceUnitIsoCode = "C62", // one piece
                                 ScalePrices =
                                 {
-                                    new ScalePrice
-                                    {
-                                        Price = 200,
-                                        Quantity = 0
-                                    },
-                                    new ScalePrice
-                                    {
-                                        Price = 100,
-                                        Quantity = 50
-                                    }
+                                    new ScalePrice { Price = 200, Quantity = 0 }, new ScalePrice { Price = 100, Quantity = 50 }
                                 }
                             },
                         },
@@ -399,8 +452,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
                         //optional ChangeProjectStatusMessage
                         messageResponse = new ChangeProjectStatusMessage()
                         {
-                            ProjectId = projectStatusChanged.ProjectId,
-                            ProjectState = ProjectStatesV1.Produced
+                            ProjectId = projectStatusChanged.ProjectId, ProjectState = ProjectStatesV1.Produced
                             //examples
                             // ProjectStatesV1.Ordered = 6,
                             // ProjectStatesV1.Producing = 7,
@@ -416,7 +468,6 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
                             // ProjectStatesV1.Quoting = 3,
                             // ProjectStatesV1.Quoted = 4,
                             // ProjectStatesV1.Negotiating = 5,
-
                         };
                         break;
                     }
@@ -425,8 +476,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
                         //optional ChangeProjectOrderNumberMessage
                         messageResponse = new ChangeProjectOrderNumberMessage()
                         {
-                            ProjectId = changeProjectOrderNumber.ProjectId,
-                            OrderNumber = "2024123456789"
+                            ProjectId = changeProjectOrderNumber.ProjectId, OrderNumber = "2024123456789"
                         };
                         break;
                     }
