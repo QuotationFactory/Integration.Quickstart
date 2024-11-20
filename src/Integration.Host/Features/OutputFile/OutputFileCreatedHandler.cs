@@ -52,8 +52,13 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
         // check if json & zip file exists it means that a project has been exported
         if (File.Exists(jsonFilePath) && File.Exists(zipFilePath))
         {
+            //BE CAREFULL HERE Both scenario's cannot be supported concurrent.
+
+            // This is an example handling ProjectFiles
+            await HandleProjectFiles(jsonFilePath, zipFilePath);
+            // This is an example handling Project and explains how to use the time registration feedback.
             await HandleProjectFilesAndReturnTimeRegistrationExportRecords(jsonFilePath, zipFilePath);
-            // await HandleProjectFiles(jsonFilePath, zipFilePath);
+
             return;
         }
 
@@ -86,17 +91,19 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
             _logger.LogInformation("Project deserialized succesfully, project id: {id}", project.Id);
 
             // optional response if your using this to export to ERP.
+            // this is an example to simulate the TimeRegistrationExport with Random productionTimeInSeconds
             var response = new AgentTimeRegistrationExport
             {
-                Records = project.BoM.PartList.SelectMany(x => x.Activities.Where(z=> z.Resource?.ResourceId is not null).SelectMany(z =>
+
+                Records = project.BoM.PartList.SelectMany(partType => partType.Activities.Where(z=> z.Resource?.ResourceId is not null).SelectMany(activity =>
                 {
-                    var productionTimeInSeconds = Random.Shared.Next(60, 360);
-                    var camTimeInSeconds = Random.Shared.Next(30, 180);
+                    var simulatedTimeInSeconds = Random.Shared.Next(30, 180);
+                    var measuredProductionTimeInSeconds = Random.Shared.Next(60, 360);
 
                     return new List<AgentTimeRegistrationExportRecord>
                     {
-                        new(x.Id, z.WorkingStepType, productionTimeInSeconds, x.Financial.TotalProjectQuantity, AgentTimeRegistrationSource.Production, project.Id, z.Resource?.ResourceId),
-                        new(x.Id, z.WorkingStepType, camTimeInSeconds, x.Financial.TotalProjectQuantity, AgentTimeRegistrationSource.CAM, project.Id, z.Resource?.ResourceId),
+                        new(partType.Id, activity.WorkingStepType, measuredProductionTimeInSeconds, partType.Financial.TotalProjectQuantity, AgentTimeRegistrationSource.Production, project.Id, activity.Resource?.ResourceId),
+                        new(partType.Id, activity.WorkingStepType, simulatedTimeInSeconds, partType.Financial.TotalProjectQuantity, AgentTimeRegistrationSource.CAM, project.Id, activity.Resource?.ResourceId),
                     };
                 })).ToList()
             };
