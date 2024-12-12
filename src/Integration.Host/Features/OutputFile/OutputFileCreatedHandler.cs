@@ -8,6 +8,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using Integration.Common;
 using Integration.Common.Serialization;
 using Integration.Host.Configuration;
+using Integration.Host.Features.Graph;
 using MediatR;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
@@ -29,6 +30,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
     private readonly IAgentMessageSerializationHelper _agentMessageSerializationHelper;
     private readonly ILogger<OutputFileCreatedHandler> _logger;
     private static Random _random = new Random();
+    private static GraphConnector _graphConnector;
 
     public OutputFileCreatedHandler(IOptions<IntegrationSettings> options,
         IAgentMessageSerializationHelper agentMessageSerializationHelper, ILogger<OutputFileCreatedHandler> logger)
@@ -36,6 +38,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
         _options = options.Value;
         _agentMessageSerializationHelper = agentMessageSerializationHelper;
         _logger = logger;
+        _graphConnector = new GraphConnector(options, logger);
     }
 
     public async Task Handle(OutputFileCreated notification, CancellationToken cancellationToken)
@@ -46,24 +49,46 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
         await Task.Delay(500, cancellationToken);
 
         // define file paths
-        var jsonFilePath = notification.FilePath;
+        var filePath = notification.FilePath;
+        var jsonFilePath = Path.ChangeExtension(notification.FilePath, ".json");
         var zipFilePath = Path.ChangeExtension(notification.FilePath, ".zip");
 
-        // check if json & zip file exists it means that a project has been exported
+        // if both json & zip file exists it means that a project has been exported
         if (File.Exists(jsonFilePath) && File.Exists(zipFilePath))
         {
+            await _graphConnector.UploadFileSharePointOnline(jsonFilePath);
+            await _graphConnector.UploadFileSharePointOnline(zipFilePath);
+            _options.MoveFileToProcessed(jsonFilePath);
+            _options.MoveFileToProcessed(zipFilePath);
+
             //BE CAREFULL HERE Both scenario's cannot be supported concurrent.
 
             // This is an example handling ProjectFiles
-            await HandleProjectFiles(jsonFilePath, zipFilePath);
+            //await HandleProjectFiles(jsonFilePath, zipFilePath);
             // This is an example handling Project and explains how to use the time registration feedback.
-            await HandleProjectFilesAndReturnTimeRegistrationExportRecords(jsonFilePath, zipFilePath);
+            //await HandleProjectFilesAndReturnTimeRegistrationExportRecords(jsonFilePath, zipFilePath);
 
             return;
         }
 
-        await HandleMessage(jsonFilePath);
+        // if only json file exists it's probably an Input message
+        else if (File.Exists(jsonFilePath))
+        {
+            await HandleInputMessage(jsonFilePath);
+            return;
+        }
+
+        // if other file type just upload
+        else if (File.Exists(filePath))
+        {
+            await _graphConnector.UploadFileSharePointOnline(filePath);
+            _options.MoveFileToProcessed(filePath);
+        }
     }
+
+    /// <summary>
+    /// ProjectFiles processing methods
+    /// </summary>
 
     private async Task HandleProjectFilesAndReturnTimeRegistrationExportRecords(string jsonFilePath, string zipFilePath)
     {
@@ -248,7 +273,12 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
         return zipFiles;
     }
 
-    private async Task HandleMessage(string jsonFilePath)
+
+    /// <summary>
+    /// InputFile processing methods
+    /// </summary>
+
+    private async Task HandleInputMessage(string jsonFilePath)
     {
         try
         {

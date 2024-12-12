@@ -18,4 +18,22 @@ public class IntegrationSettings
     /// </remarks>
     [Required]
     public required string RootDirectory { get; set; }
+
+    public string WatchDirectory { get; set; }
+    public string WatchFilter { get; set; }
+
+
+    /// <summary>
+    /// GraphConnector Settings for connecting to SharePointOnline
+    /// </summary>
+
+    public string TenantId { get; set; }
+
+    public string ClientId { get; set; }
+
+    public string ClientSecret { get; set; }
+
+    public string DriveId { get; set; }
+
+    public string TargetDirectory { get; set; }    
 }
