@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Integration.Common;
 using Integration.Common.FileWatcher;
 using Integration.Host.Configuration;
 using MediatR;
