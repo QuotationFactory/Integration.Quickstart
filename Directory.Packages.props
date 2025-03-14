@@ -18,6 +18,6 @@
     <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageVersion Include="SharpZipLib" Version="1.4.2" />
     <PackageVersion Include="MetalHeaven.Agent.Shared.External" Version="0.1.23" />
-    <PackageVersion Include="MetalHeaven.ExternalDataContracts" Version="0.4.2" />
+    <PackageVersion Include="MetalHeaven.ExternalDataContracts" Version="0.4.80" />
   </ItemGroup>
 </Project>
