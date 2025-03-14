@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
-using Integration.Common;
 using Integration.Common.Serialization;
 using Integration.Host.Configuration;
 using MediatR;
@@ -28,7 +27,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
     private readonly IntegrationSettings _options;
     private readonly IAgentMessageSerializationHelper _agentMessageSerializationHelper;
     private readonly ILogger<OutputFileCreatedHandler> _logger;
-    private static Random _random = new Random();
+    private static readonly Random s_random = new();
 
     public OutputFileCreatedHandler(IOptions<IntegrationSettings> options,
         IAgentMessageSerializationHelper agentMessageSerializationHelper, ILogger<OutputFileCreatedHandler> logger)
@@ -156,7 +155,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
             var response = new ExportToErpResponse
             {
                 Source = "Integration name",
-                Succeed = _random.NextDouble() >= 0.5,
+                Succeed = s_random.NextDouble() >= 0.5,
                 ExternalUrl = "https://www.google.nl", //Optional url to open the imported entity from Rhodium24
                 ProjectId = project.Id,
                 EventLogs = new List<EventLog>
@@ -171,7 +170,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
                 },
                 AssemblyImportResults = project.BoM.Assemblies.Select(assembly => new ExportToErpAssemblyResponse
                 {
-                    Succeed = _random.NextDouble() >= 0.5,
+                    Succeed = s_random.NextDouble() >= 0.5,
                     AssemblyId = assembly.Id, // specific assembly id
                     ExternalUrl = "", // Optional url to open the imported entity from Rhodium24
                     EventLogs = new List<EventLog>
@@ -188,7 +187,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
                 }),
                 PartTypeResults = project.BoM.PartList.Select(partType => new ExportToErpPartTypeResponse
                 {
-                    Succeed = _random.NextDouble() >= 0.5,
+                    Succeed = s_random.NextDouble() >= 0.5,
                     PartTypeId = partType.Id, // specific assembly id
                     ExternalUrl = "", // Optional url to open the imported entity from Rhodium24
                     EventLogs = new List<EventLog>
@@ -389,7 +388,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
                         {
                             ProjectId = manufacturabilityCheck.ProjectId,
                             PartTypeId = manufacturabilityCheck.PartType.Id,
-                            IsManufacturable = _random.NextDouble() >= 0.5,
+                            IsManufacturable = s_random.NextDouble() >= 0.5,
                             WorkingStepKey = manufacturabilityCheck.WorkingStepKey,
                             EventLogs = new List<EventLog>
                             {

@@ -1,5 +1,4 @@
 using System;
-using Integration.Common;
 using Integration.Host.Configuration;
 using Integration.Host.Features.OutputFile;
 using MetalHeaven.Agent.Shared.External.Classes;
