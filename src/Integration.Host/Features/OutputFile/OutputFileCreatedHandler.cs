@@ -293,13 +293,19 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
                                 PostalCountryName = "Netherlands",
                                 LanguageCode = "",
                                 SegmentName = "A",
-                                Tags = Array.Empty<string>(),
+                                Tags = [],
                                 VatNumber = "",
                                 // This is the VAT rate in percentage from 0 to 100
-                                VatRatio = 21.0
+                                VatRatio = 21.0,
+                                //[Optional]
                                 // CoCNumber = "",
                                 // CoCCountryCode = "NL",
                                 // CoCCountryName = "Netherlands"
+                                // CurrencyCode = "EUR", // used to convert the sales prices in the quotation to the correct currency
+                                // RawMaterialIsProvided = false, // to define that this customer provides the raw material
+                                PaymentTermsCode = "60D", // to define the payment terms code for this customer (aligned with the ERP system)
+                                DeliveryTermsCode = "EXW", // to define the delivery terms code for this customer (aligned with the ERP system)
+
                             }
                         },
                         EventLogs = new List<EventLog>
