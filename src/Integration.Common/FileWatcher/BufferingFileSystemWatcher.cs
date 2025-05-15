@@ -7,7 +7,7 @@ namespace Integration.Common.FileWatcher;
 
 /// <devdoc>
 /// Features:
-/// - Buffers FileSystemWatcher events in a BlockinCollection to prevent InternalBufferOverflowExceptions.
+/// - Buffers FileSystemWatcher events in a BlockingCollection to prevent InternalBufferOverflowExceptions.
 /// - Does not break the original FileSystemWatcher API.
 /// - Supports reporting existing files via a new Existed event.
 /// - Supports sorting events by oldest (existing) file first.

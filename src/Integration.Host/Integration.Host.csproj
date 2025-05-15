@@ -7,7 +7,6 @@
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishSingleFile>true</PublishSingleFile>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-        <UserSecretsId>e2be335d-ce2e-4b7e-b5ad-a1fc31f4a0db</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>

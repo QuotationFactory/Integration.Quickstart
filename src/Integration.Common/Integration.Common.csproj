@@ -8,11 +8,9 @@
 
     <ItemGroup>
       <PackageReference Include="MediatR"/>
-      <PackageReference Include="MetalHeaven.Agent.Shared.External" />
       <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
       <PackageReference Include="Microsoft.Extensions.Options" />
-      <PackageReference Include="MetalHeaven.ExternalDataContracts" />
-
+      <PackageReference Include="Newtonsoft.Json" />
     </ItemGroup>
 
 </Project>
