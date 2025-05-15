@@ -70,21 +70,22 @@ public static class IntegrationSettingsExtensions
     public static string MoveFileToDirectory(this string filePath, string directoryPath)
     {
         if (!File.Exists(filePath))
+        {
             throw new FileNotFoundException("File not found", filePath);
+        }
 
-        var fileInfo = new FileInfo(filePath);
+        Directory.CreateDirectory(directoryPath);
 
-        if (!Directory.Exists(directoryPath))
-            Directory.CreateDirectory(directoryPath);
-
-        var destFileName = Path.Combine(directoryPath, fileInfo.Name);
+        var destFileName = Path.Combine(directoryPath, Path.GetFileName(filePath));
         return filePath.MoveFile(destFileName);
     }
 
     public static string MoveFile(this string filePath, string destinationFilePath)
     {
         if (!File.Exists(filePath))
+        {
             throw new FileNotFoundException("File not found", filePath);
+        }
 
         var result = destinationFilePath;
 
@@ -93,7 +94,10 @@ public static class IntegrationSettingsExtensions
             result = Path.Combine(Path.GetDirectoryName(destinationFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(destinationFilePath)} (1){Path.GetExtension(destinationFilePath)}");
         }
 
-        File.Move(filePath, result);
+        // Copy the file to the processed directory
+        File.Copy(filePath, destinationFilePath, true);
+        // delete the original file
+        File.Delete(filePath);
 
         return result;
     }

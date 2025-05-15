@@ -31,6 +31,7 @@ public abstract class FileWatcherService : IHostedService
     {
         var fileSystemWatcher = new BufferingFileSystemWatcher(path, filter);
         fileSystemWatcher.All += OnAllChanges;
+        fileSystemWatcher.Existed += OnExistingFile;
         _fileWatchers.Add(fileSystemWatcher);
     }
 
@@ -39,6 +40,7 @@ public abstract class FileWatcherService : IHostedService
         var fileSystemWatcher = new BufferingFileSystemWatcher(path, filter);
         fileSystemWatcher.IncludeSubdirectories = includeSubDirectories;
         fileSystemWatcher.All += OnAllChanges;
+        fileSystemWatcher.Existed += OnExistingFile;
         _fileWatchers.Add(fileSystemWatcher);
     }
 
@@ -52,6 +54,7 @@ public abstract class FileWatcherService : IHostedService
         }
 
         fileSystemWatcher.All += OnAllChanges;
+        fileSystemWatcher.Existed += OnExistingFile;
         _fileWatchers.Add(fileSystemWatcher);
     }
 
@@ -65,10 +68,16 @@ public abstract class FileWatcherService : IHostedService
         }
 
         fileSystemWatcher.All += OnAllChanges;
+        fileSystemWatcher.Existed += OnExistingFile;
         _fileWatchers.Add(fileSystemWatcher);
     }
 
     protected virtual void OnAllChanges(object sender, FileSystemEventArgs e)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    protected virtual void OnExistingFile(object sender, FileSystemEventArgs e)
     {
         throw new System.NotImplementedException();
     }

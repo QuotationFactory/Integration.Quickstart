@@ -25,6 +25,7 @@
       <PackageReference Include="Serilog.Sinks.Console" />
       <PackageReference Include="Serilog.Sinks.File" />
       <PackageReference Include="SharpZipLib" />
+      <PackageReference Include="SSH.NET" />
     </ItemGroup>
 
     <ItemGroup>
@@ -34,6 +35,9 @@
 
     <ItemGroup>
       <None Update="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="appsettings.development.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>

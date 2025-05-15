@@ -41,6 +41,14 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
     {
         _logger.LogInformation("File created: {filePath}", notification.FilePath);
 
+        // check if sftp upload is enabled
+        // if sftp upload is enabled, do not process the file
+        // this needs to be refactored
+        if (_options.EnableSftpUpload)
+        {
+            return;
+        }
+
         // default file creation timeout
         await Task.Delay(500, cancellationToken);
 

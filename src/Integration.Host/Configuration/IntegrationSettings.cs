@@ -18,4 +18,7 @@ public class IntegrationSettings
     /// </remarks>
     [Required]
     public required string RootDirectory { get; set; }
+
+    [Required]
+    public required bool EnableSftpUpload { get; set; }
 }
