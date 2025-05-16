@@ -50,14 +50,14 @@ public class SftpFileUploadHandler : INotificationHandler<OutputFileCreated>
         }
 
         var projectId = await GetProjectIdAsync(notification.FilePath);
-        var processedSuccessFull = false;
+        var processedSuccess = false;
 
         try
         {
 
             await UploadFileToSftpAsync(notification.FilePath, cancellationToken);
             await SendErpResultAsync(notification.FilePath, projectId, true);
-            processedSuccessFull = true;
+            processedSuccess = true;
         }
         catch (Exception e)
         {
@@ -77,7 +77,7 @@ public class SftpFileUploadHandler : INotificationHandler<OutputFileCreated>
         }
         finally
         {
-            if (processedSuccessFull)
+            if (processedSuccess)
             {
                  // Move the file to a processed directory
                  var processedDirectory = Path.Combine(Path.GetDirectoryName(notification.FilePath) ?? string.Empty, "processed");
