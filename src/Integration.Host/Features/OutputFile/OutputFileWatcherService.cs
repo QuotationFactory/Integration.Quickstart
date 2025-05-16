@@ -36,12 +36,33 @@ public class OutputFileWatcherService : FileWatcherService
                     _mediator.Publish(new OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
                     break;
                 case WatcherChangeTypes.Deleted:
-                    break;
                 case WatcherChangeTypes.Changed:
+                case WatcherChangeTypes.Renamed:
+                case WatcherChangeTypes.All:
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while processing {event} for file {filePath}", e.ChangeType, e.FullPath);
+        }
+    }
+
+    protected override void OnExistingFile(object sender, FileSystemEventArgs e)
+    {
+        try
+        {
+            switch (e.ChangeType)
+            {
+                case WatcherChangeTypes.Created:
+                case WatcherChangeTypes.Deleted:
+                case WatcherChangeTypes.Changed:
                 case WatcherChangeTypes.Renamed:
                     break;
                 case WatcherChangeTypes.All:
+                    _mediator.Publish(new OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

@@ -1,8 +1,10 @@
 using System;
 using Integration.Host.Configuration;
 using Integration.Host.Features.OutputFile;
+using Integration.Host.Features.SFTP;
 using MetalHeaven.Agent.Shared.External.Classes;
 using MetalHeaven.Agent.Shared.External.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -39,13 +41,26 @@ public static class Program
         Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
             .UseSerilog()
             .UseWindowsService()
+            .ConfigureAppConfiguration((context, config) =>
+            {
+                config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                if (context.HostingEnvironment.IsDevelopment())
+                {
+                    config.AddJsonFile("appsettings.development.json", optional: true, reloadOnChange: true);
+                }
+            })
             .ConfigureServices((hostContext, services) =>
             {
                 // register message serialization helper
                 services.AddTransient<IAgentMessageSerializationHelper, ExternalAgentMessageSerializationHelper>();
+                // we have options defined in the appsettings.json file but also in appsettings.{env}.json
 
                 // register settings
-                services.AddOptions<IntegrationSettings>().Bind(hostContext.Configuration.GetSection("IntegrationSettings"))
+                services.AddOptions<IntegrationSettings>()
+                    .Bind(hostContext.Configuration.GetSection("IntegrationSettings"))
+                    .ValidateDataAnnotations();
+                services.AddOptions<SftpSettings>()
+                    .Bind(hostContext.Configuration.GetSection("SftpSettings"))
                     .ValidateDataAnnotations();
 
                 // register output file watcher service

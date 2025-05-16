@@ -7,7 +7,7 @@ namespace Integration.Common.FileWatcher;
 
 /// <devdoc>
 /// Features:
-/// - Buffers FileSystemWatcher events in a BlockinCollection to prevent InternalBufferOverflowExceptions.
+/// - Buffers FileSystemWatcher events in a BlockingCollection to prevent InternalBufferOverflowExceptions.
 /// - Does not break the original FileSystemWatcher API.
 /// - Supports reporting existing files via a new Existed event.
 /// - Supports sorting events by oldest (existing) file first.
@@ -328,9 +328,6 @@ public class BufferingFileSystemWatcher : Component
     public IEnumerable<string> GetAllFilters()
     {
         var allFilters = Filters?.ToList() ?? new List<string>();
-
-        if(!string.IsNullOrEmpty(Filter))
-            allFilters.Add(Filter);
 
         if(!allFilters.Any())
             throw new ArgumentNullException("Filter(s) are not set.");

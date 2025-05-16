@@ -24,15 +24,16 @@ namespace Integration.Host.Features.OutputFile;
 
 public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
 {
-    private readonly IntegrationSettings _options;
+    private readonly IntegrationSettings _integrationSettings;
     private readonly IAgentMessageSerializationHelper _agentMessageSerializationHelper;
     private readonly ILogger<OutputFileCreatedHandler> _logger;
     private static readonly Random s_random = new();
 
     public OutputFileCreatedHandler(IOptions<IntegrationSettings> options,
-        IAgentMessageSerializationHelper agentMessageSerializationHelper, ILogger<OutputFileCreatedHandler> logger)
+        IAgentMessageSerializationHelper agentMessageSerializationHelper,
+        ILogger<OutputFileCreatedHandler> logger)
     {
-        _options = options.Value;
+        _integrationSettings = options.Value;
         _agentMessageSerializationHelper = agentMessageSerializationHelper;
         _logger = logger;
     }
@@ -40,6 +41,14 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
     public async Task Handle(OutputFileCreated notification, CancellationToken cancellationToken)
     {
         _logger.LogInformation("File created: {filePath}", notification.FilePath);
+
+        // check if sftp upload is enabled
+        // if sftp upload is enabled, do not process the file
+        // this needs to be refactored
+        if (_integrationSettings.EnableSftpUpload)
+        {
+            return;
+        }
 
         // default file creation timeout
         await Task.Delay(500, cancellationToken);
@@ -116,7 +125,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
             await File.WriteAllTextAsync(tempFile, responseJson);
 
             // move file to input directory
-            _options.MoveFileToInput(tempFile);
+            _integrationSettings.MoveFileToInput(tempFile);
 
             _logger.LogInformation("'{Count}' Generated random time registration export", response.Records.Count);
         }
@@ -213,7 +222,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
             await File.WriteAllTextAsync(tempFile, responseJson);
 
             // move file to input directory
-            _options.MoveFileToInput(tempFile);
+            _integrationSettings.MoveFileToInput(tempFile);
         }
         catch (Exception ex)
         {
@@ -507,7 +516,7 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
             await File.WriteAllTextAsync(tempFile, json);
 
             // move file to input directory
-            _options.MoveFileToInput(tempFile);
+            _integrationSettings.MoveFileToInput(tempFile);
 
 
             _logger.LogInformation("message file successfully processed");
