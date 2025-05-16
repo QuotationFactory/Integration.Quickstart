@@ -36,11 +36,8 @@ public class OutputFileWatcherService : FileWatcherService
                     _mediator.Publish(new OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
                     break;
                 case WatcherChangeTypes.Deleted:
-                    break;
                 case WatcherChangeTypes.Changed:
-                    break;
                 case WatcherChangeTypes.Renamed:
-                    break;
                 case WatcherChangeTypes.All:
                     break;
                 default:
@@ -60,11 +57,8 @@ public class OutputFileWatcherService : FileWatcherService
             switch (e.ChangeType)
             {
                 case WatcherChangeTypes.Created:
-                    break;
                 case WatcherChangeTypes.Deleted:
-                    break;
                 case WatcherChangeTypes.Changed:
-                    break;
                 case WatcherChangeTypes.Renamed:
                     break;
                 case WatcherChangeTypes.All:

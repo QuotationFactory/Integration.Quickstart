@@ -329,9 +329,6 @@ public class BufferingFileSystemWatcher : Component
     {
         var allFilters = Filters?.ToList() ?? new List<string>();
 
-        if(!string.IsNullOrEmpty(Filter))
-            allFilters.Add(Filter);
-
         if(!allFilters.Any())
             throw new ArgumentNullException("Filter(s) are not set.");
 

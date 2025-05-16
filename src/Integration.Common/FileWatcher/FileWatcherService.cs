@@ -32,6 +32,7 @@ public abstract class FileWatcherService : IHostedService
         var fileSystemWatcher = new BufferingFileSystemWatcher(path, filter);
         fileSystemWatcher.All += OnAllChanges;
         fileSystemWatcher.Existed += OnExistingFile;
+        fileSystemWatcher.OrderByOldestFirst = true;
         _fileWatchers.Add(fileSystemWatcher);
     }
 
@@ -41,6 +42,7 @@ public abstract class FileWatcherService : IHostedService
         fileSystemWatcher.IncludeSubdirectories = includeSubDirectories;
         fileSystemWatcher.All += OnAllChanges;
         fileSystemWatcher.Existed += OnExistingFile;
+        fileSystemWatcher.OrderByOldestFirst = true;
         _fileWatchers.Add(fileSystemWatcher);
     }
 
@@ -55,6 +57,7 @@ public abstract class FileWatcherService : IHostedService
 
         fileSystemWatcher.All += OnAllChanges;
         fileSystemWatcher.Existed += OnExistingFile;
+        fileSystemWatcher.OrderByOldestFirst = true;
         _fileWatchers.Add(fileSystemWatcher);
     }
 
@@ -69,6 +72,7 @@ public abstract class FileWatcherService : IHostedService
 
         fileSystemWatcher.All += OnAllChanges;
         fileSystemWatcher.Existed += OnExistingFile;
+        fileSystemWatcher.OrderByOldestFirst = true;
         _fileWatchers.Add(fileSystemWatcher);
     }
 
