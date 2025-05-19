@@ -56,7 +56,7 @@ public static class OutputFileOrchestrator
             // this needs to be refactored
             if (_integrationSettings.EnableSftpUpload)
             {
-                await _mediator.Publish(new SftpFileUploadRequest(notification.FilePath), cancellationToken);
+                await _mediator.Publish(new SftpFileUpload.Upload(notification.FilePath), cancellationToken);
                 return;
             }
 
