@@ -18,6 +18,7 @@
       <PackageReference Include="Microsoft.Extensions.Options" />
       <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
       <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+      <PackageReference Include="Polly" />
       <PackageReference Include="Serilog" />
       <PackageReference Include="Serilog.Extensions.Hosting" />
       <PackageReference Include="Serilog.Extensions.Logging" />

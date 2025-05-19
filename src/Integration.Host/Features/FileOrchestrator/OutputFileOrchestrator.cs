@@ -12,6 +12,7 @@ using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Polly;
 using Versioned.ExternalDataContracts.Contracts.AddressBook;
 using Versioned.ExternalDataContracts.Contracts.Article;
 using Versioned.ExternalDataContracts.Enums;
@@ -48,8 +49,12 @@ public static class OutputFileOrchestrator
 
         public async Task Handle(OutputFileCreated notification, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("File created: {filePath}", notification.FilePath);
+            _logger.LogInformation("File created: {FilePath}", notification.FilePath);
 
+            // check if the file is accessible
+            await CheckSafeFileAccessAsync(notification.FilePath);
+
+            _logger.LogInformation("File is accessible: {FilePath}", notification.FilePath);
             // check if sftp upload is enabled
             // if sftp upload is enabled, do not process the file
             // this needs to be refactored
@@ -77,6 +82,32 @@ public static class OutputFileOrchestrator
 
             _logger.LogWarning("File '{filePath}' is not a valid agent message or project file.", notification.FilePath);
 
+        }
+
+        private async Task CheckSafeFileAccessAsync(string filePath)
+        {
+            var info = new FileInfo(filePath);
+
+            // https://learn.microsoft.com/en-us/dotnet/standard/io/handling-io-errors
+            await Policy
+                .Handle<IOException>(ex => (ex.HResult & 0x0000FFFF) == 32) // Retry 'sharing violation' (file is in use)
+                .Or<UnauthorizedAccessException>()
+                .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(5), (ex, retry, _) =>
+                {
+                    if (retry > 24)
+                    {
+                        _logger.LogError(ex, "File {FilePath} cannot be read retry runs for {Retry} time(s): {Message}", filePath, retry, ex.Message);
+                    }
+                    else
+                    {
+                        _logger.LogDebug("File {FilePath} cannot be read retry runs for {Retry} time(s): {Message}", filePath, retry, ex.Message);
+                    }
+                })
+                .ExecuteAsync(() =>
+                {
+                    using var stream = info.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+                    return Task.CompletedTask;
+                });
         }
 
         private bool TryIsIAgentMessage(string notificationFilePath, [NotNullWhen(true)] out IAgentMessage message)
