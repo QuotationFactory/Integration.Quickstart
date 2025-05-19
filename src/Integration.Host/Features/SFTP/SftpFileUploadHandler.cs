@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Integration.Common.Serialization;
 using Integration.Host.Configuration;
-using Integration.Host.Features.OutputFile;
 using MediatR;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
@@ -18,9 +17,8 @@ using Versioned.ExternalDataContracts.Contracts.Project;
 
 namespace Integration.Host.Features.SFTP;
 
-public class SftpFileUploadHandler : INotificationHandler<OutputFileCreated>
+public class SftpFileUploadHandler : INotificationHandler<SftpFileUploadRequest>
 {
-
     private readonly ILogger<SftpFileUploadHandler> _logger;
     private readonly IAgentMessageSerializationHelper _agentMessageSerializationHelper;
     private readonly IntegrationSettings _integrationSettings;
@@ -37,7 +35,7 @@ public class SftpFileUploadHandler : INotificationHandler<OutputFileCreated>
         _logger = logger;
         _agentMessageSerializationHelper = agentMessageSerializationHelper;
     }
-    public async Task Handle(OutputFileCreated notification, CancellationToken cancellationToken)
+    public async Task Handle(SftpFileUploadRequest notification, CancellationToken cancellationToken)
     {
         // default file creation timeout
         await Task.Delay(500, cancellationToken);
@@ -194,6 +192,5 @@ public class SftpFileUploadHandler : INotificationHandler<OutputFileCreated>
 
             // move file to input directory
             _integrationSettings.MoveFileToInput(tempFile);
-
     }
 }

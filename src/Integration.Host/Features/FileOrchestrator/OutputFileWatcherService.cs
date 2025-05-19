@@ -6,7 +6,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Integration.Host.Features.OutputFile;
+namespace Integration.Host.Features.FileOrchestrator;
 
 /// <summary>
 /// Service that watches on the output directory of the edge connector for *.json files
@@ -33,7 +33,7 @@ public class OutputFileWatcherService : FileWatcherService
             switch (e.ChangeType)
             {
                 case WatcherChangeTypes.Created:
-                    _mediator.Publish(new OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
+                    _mediator.Publish(new OutputFileOrchestrator.OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
                     break;
                 case WatcherChangeTypes.Deleted:
                 case WatcherChangeTypes.Changed:
@@ -62,7 +62,7 @@ public class OutputFileWatcherService : FileWatcherService
                 case WatcherChangeTypes.Renamed:
                     break;
                 case WatcherChangeTypes.All:
-                    _mediator.Publish(new OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
+                    _mediator.Publish(new OutputFileOrchestrator.OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

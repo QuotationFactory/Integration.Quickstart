@@ -1,273 +1,111 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ICSharpCode.SharpZipLib.Zip;
-using Integration.Common.Serialization;
 using Integration.Host.Configuration;
+using Integration.Host.Features.Project;
+using Integration.Host.Features.SFTP;
+using Integration.Host.Features.TimeRegistration;
 using MediatR;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
-using MetalHeaven.Agent.Shared.External.TimeRegistration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Versioned.ExternalDataContracts;
 using Versioned.ExternalDataContracts.Contracts.AddressBook;
 using Versioned.ExternalDataContracts.Contracts.Article;
-using Versioned.ExternalDataContracts.Contracts.Project;
 using Versioned.ExternalDataContracts.Enums;
 
-namespace Integration.Host.Features.OutputFile;
+namespace Integration.Host.Features.FileOrchestrator;
 
-public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
+public static class OutputFileOrchestrator
 {
-    private readonly IntegrationSettings _integrationSettings;
-    private readonly IAgentMessageSerializationHelper _agentMessageSerializationHelper;
-    private readonly ILogger<OutputFileCreatedHandler> _logger;
-    private static readonly Random s_random = new();
-
-    public OutputFileCreatedHandler(IOptions<IntegrationSettings> options,
-        IAgentMessageSerializationHelper agentMessageSerializationHelper,
-        ILogger<OutputFileCreatedHandler> logger)
+    public class OutputFileCreated(string filePath) : INotification
     {
-        _integrationSettings = options.Value;
-        _agentMessageSerializationHelper = agentMessageSerializationHelper;
-        _logger = logger;
+        public string FilePath { get; } = filePath;
     }
 
-    public async Task Handle(OutputFileCreated notification, CancellationToken cancellationToken)
+    // ReSharper disable once UnusedType.Global
+    public class NotificationHandler : INotificationHandler<OutputFileCreated>
     {
-        _logger.LogInformation("File created: {filePath}", notification.FilePath);
+        private readonly IntegrationSettings _integrationSettings;
+        private readonly IAgentMessageSerializationHelper _agentMessageSerializationHelper;
+        private readonly ILogger<NotificationHandler> _logger;
+        private readonly IMediator _mediator;
+        private static readonly Random s_random = new();
 
-        // check if sftp upload is enabled
-        // if sftp upload is enabled, do not process the file
-        // this needs to be refactored
-        if (_integrationSettings.EnableSftpUpload)
+        public NotificationHandler(IOptions<IntegrationSettings> options,
+            IAgentMessageSerializationHelper agentMessageSerializationHelper,
+            ILogger<NotificationHandler> logger,
+            IMediator mediator)
         {
-            return;
+            _integrationSettings = options.Value;
+            _agentMessageSerializationHelper = agentMessageSerializationHelper;
+            _logger = logger;
+            _mediator = mediator;
         }
 
-        // default file creation timeout
-        await Task.Delay(500, cancellationToken);
+        public async Task Handle(OutputFileCreated notification, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("File created: {filePath}", notification.FilePath);
 
+            // check if sftp upload is enabled
+            // if sftp upload is enabled, do not process the file
+            // this needs to be refactored
+            if (_integrationSettings.EnableSftpUpload)
+            {
+                await _mediator.Publish(new SftpFileUploadRequest(notification.FilePath), cancellationToken);
+                return;
+            }
+
+            if (UseProjectFileHandle(notification.FilePath))
+            {
+                //BE CAREFULL HERE Both scenario's cannot be supported concurrent.
+                // This is an example handling ProjectFiles
+                await _mediator.Publish(new ProjectFileCreated(notification.FilePath), cancellationToken);
+                // This is an example handling Project and explains how to use the time registration feedback.
+                await _mediator.Publish(new ProjectFileCreatedReturnTimeRegistrationExportRecords(notification.FilePath), cancellationToken);
+                return;
+            }
+
+            if(TryIsIAgentMessage(notification.FilePath, out var agentMessage))
+            {
+                await HandleMessage(agentMessage);
+                return;
+            }
+            _logger.LogWarning("File '{filePath}' is not a valid agent message or project file.", notification.FilePath);
+
+
+        }
+
+        private bool TryIsIAgentMessage(string notificationFilePath, [NotNullWhen(true)] out IAgentMessage message)
+    {
+        // read json from file
+        var fileContent = File.ReadAllText(notificationFilePath);
+
+        // convert json to message
+        message = _agentMessageSerializationHelper.FromJson(fileContent);
+
+        _logger.LogInformation("Processing message type: '{Type}'", message.MessageType);
+
+        return message is not null;
+
+    }
+
+    private bool UseProjectFileHandle(string filePath)
+    {
         // define file paths
-        var jsonFilePath = notification.FilePath;
-        var zipFilePath = Path.ChangeExtension(notification.FilePath, ".zip");
+        var jsonFilePath = filePath;
+        var zipFilePath = Path.ChangeExtension(filePath, ".zip");
 
-        // check if json & zip file exists it means that a project has been exported
-        if (File.Exists(jsonFilePath) && File.Exists(zipFilePath))
-        {
-            //BE CAREFULL HERE Both scenario's cannot be supported concurrent.
-
-            // This is an example handling ProjectFiles
-            await HandleProjectFiles(jsonFilePath, zipFilePath);
-            // This is an example handling Project and explains how to use the time registration feedback.
-            await HandleProjectFilesAndReturnTimeRegistrationExportRecords(jsonFilePath, zipFilePath);
-
-            return;
-        }
-
-        await HandleMessage(jsonFilePath);
+        return File.Exists(jsonFilePath) && File.Exists(zipFilePath);
     }
 
-    private async Task HandleProjectFilesAndReturnTimeRegistrationExportRecords(string jsonFilePath, string zipFilePath)
+    private async Task HandleMessage(IAgentMessage message)
     {
         try
         {
-            // read zip content
-            var zipContent = await ReadProjectZipFileAsync(zipFilePath);
-
-            // log zip content
-            foreach (var (fileName, fileBytes) in zipContent)
-                _logger.LogInformation($"Found file '{fileName}' in zipfile, size {fileBytes.Length}.");
-
-            // define json serializer settings
-            var settings = new JsonSerializerSettings();
-            settings.SetJsonSettings();
-            settings.AddJsonConverters();
-            settings.SerializationBinder = new CrossPlatformTypeBinder();
-
-            // read all text from file that is created
-            var json = await File.ReadAllTextAsync(jsonFilePath);
-
-            // convert json to project object
-            var project = JsonConvert.DeserializeObject<ProjectV1>(json, settings);
-
-            _logger.LogInformation("Project deserialized succesfully, project id: {id}", project.Id);
-
-            // optional response if your using this to export to ERP.
-            // this is an example to simulate the TimeRegistrationExport with Random productionTimeInSeconds
-            var response = new AgentTimeRegistrationExport
-            {
-
-                Records = project.BoM.PartList.SelectMany(partType => partType.Activities.Where(z=> z.Resource?.ResourceId is not null).SelectMany(activity =>
-                {
-                    var simulatedTimeInSeconds = Random.Shared.Next(30, 180);
-                    var measuredProductionTimeInSeconds = Random.Shared.Next(60, 360);
-
-                    return new List<AgentTimeRegistrationExportRecord>
-                    {
-                        new(partType.Id, activity.WorkingStepType, measuredProductionTimeInSeconds, partType.Financial.TotalProjectQuantity, AgentTimeRegistrationSource.Production, project.Id, activity.Resource?.ResourceId),
-                        new(partType.Id, activity.WorkingStepType, simulatedTimeInSeconds, partType.Financial.TotalProjectQuantity, AgentTimeRegistrationSource.CAM, project.Id, activity.Resource?.ResourceId),
-                    };
-                })).ToList()
-            };
-
-            var responseJson = _agentMessageSerializationHelper.ToJson(response);
-
-            // get temp file path
-            var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
-
-            // save json to temp file
-            await File.WriteAllTextAsync(tempFile, responseJson);
-
-            // move file to input directory
-            _integrationSettings.MoveFileToInput(tempFile);
-
-            _logger.LogInformation("'{Count}' Generated random time registration export", response.Records.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occured while handling project files");
-        }
-    }
-
-    private async Task HandleProjectFiles(string jsonFilePath, string zipFilePath)
-    {
-        try
-        {
-            // read zip content
-            var zipContent = await ReadProjectZipFileAsync(zipFilePath);
-
-            // log zip content
-            foreach (var (fileName, fileBytes) in zipContent)
-                _logger.LogInformation($"Found file '{fileName}' in zipfile, size {fileBytes.Length}.");
-
-            // define json serializer settings
-            var settings = new JsonSerializerSettings();
-            settings.SetJsonSettings();
-            settings.AddJsonConverters();
-            settings.SerializationBinder = new CrossPlatformTypeBinder();
-
-            // read all text from file that is created
-            var json = await File.ReadAllTextAsync(jsonFilePath);
-
-            // convert json to project object
-            var project = JsonConvert.DeserializeObject<ProjectV1>(json, settings);
-
-            _logger.LogInformation("Project deserialized succesfully, project id: {id}", project.Id);
-
-            // optional response if your using this to export to ERP.
-            var response = new ExportToErpResponse
-            {
-                Source = "Integration name",
-                Succeed = s_random.NextDouble() >= 0.5,
-                ExternalUrl = "https://www.google.nl", //Optional url to open the imported entity from Rhodium24
-                ProjectId = project.Id,
-                EventLogs = new List<EventLog>
-                {
-                    new()
-                    {
-                        DateTime = DateTime.UtcNow,
-                        Level = EventLogLevel.Information,
-                        Message = "This is some random information",
-                        ProjectId = project.Id,
-                    }
-                },
-                AssemblyImportResults = project.BoM.Assemblies.Select(assembly => new ExportToErpAssemblyResponse
-                {
-                    Succeed = s_random.NextDouble() >= 0.5,
-                    AssemblyId = assembly.Id, // specific assembly id
-                    ExternalUrl = "", // Optional url to open the imported entity from Rhodium24
-                    EventLogs = new List<EventLog>
-                    {
-                        new()
-                        {
-                            DateTime = DateTime.UtcNow,
-                            Level = EventLogLevel.Information,
-                            Message = "This is some random information",
-                            ProjectId = project.Id,
-                            AssemblyId = assembly.Id
-                        }
-                    },
-                }),
-                PartTypeResults = project.BoM.PartList.Select(partType => new ExportToErpPartTypeResponse
-                {
-                    Succeed = s_random.NextDouble() >= 0.5,
-                    PartTypeId = partType.Id, // specific assembly id
-                    ExternalUrl = "", // Optional url to open the imported entity from Rhodium24
-                    EventLogs = new List<EventLog>
-                    {
-                        new()
-                        {
-                            DateTime = DateTime.UtcNow,
-                            Level = EventLogLevel.Information,
-                            Message = "This is some random information",
-                            ProjectId = project.Id,
-                            PartTypeId = partType.Id
-                        }
-                    },
-                })
-            };
-
-            var responseJson = _agentMessageSerializationHelper.ToJson(response);
-
-            // get temp file path
-            var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
-
-            // save json to temp file
-            await File.WriteAllTextAsync(tempFile, responseJson);
-
-            // move file to input directory
-            _integrationSettings.MoveFileToInput(tempFile);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occured while handling project files");
-        }
-    }
-
-    private static async Task<Dictionary<string, byte[]>> ReadProjectZipFileAsync(string zipFilePath)
-    {
-        await using var fileStream = File.OpenRead(zipFilePath);
-        using var zipFile = new ZipFile(fileStream);
-
-        var zipFiles = new Dictionary<string, byte[]>();
-
-        foreach (ZipEntry zipEntry in zipFile)
-        {
-            // ignore directories
-            if (!zipEntry.IsFile) continue;
-
-            var fileName = zipEntry.Name.Contains("/") ? zipEntry.Name.Substring(zipEntry.Name.LastIndexOf('/') + 1) : zipEntry.Name;
-
-            if (zipFiles.ContainsKey(fileName))
-                continue;
-
-            var zipStream = zipFile.GetInputStream(zipEntry);
-            await using var ms = new MemoryStream();
-            await zipStream.CopyToAsync(ms);
-            zipFiles.Add(fileName, ms.ToArray());
-        }
-
-        return zipFiles;
-    }
-
-    private async Task HandleMessage(string jsonFilePath)
-    {
-        try
-        {
-            // read json from file
-            var fileContent = await File.ReadAllTextAsync(jsonFilePath);
-
-            // convert json to message
-            var message = _agentMessageSerializationHelper.FromJson(fileContent);
-
-            _logger.LogInformation("Processing message type: '{Type}'", message.MessageType);
-
             IAgentMessage messageResponse;
 
             // process message
@@ -525,5 +363,6 @@ public class OutputFileCreatedHandler : INotificationHandler<OutputFileCreated>
         {
             _logger.LogError(ex, "Error occured while handling message");
         }
+    }
     }
 }
