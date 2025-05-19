@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Integration.Host.Configuration;
 using Integration.Host.Features.Project;
 using Integration.Host.Features.SFTP;
-using Integration.Host.Features.TimeRegistration;
 using MediatR;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
@@ -66,7 +65,7 @@ public static class OutputFileOrchestrator
                 // This is an example handling ProjectFiles
                 await _mediator.Publish(new ProjectFiles.ProjectFileCreated(notification.FilePath), cancellationToken);
                 // This is an example handling Project and explains how to use the time registration feedback.
-                await _mediator.Publish(new ProjectFileCreatedReturnTimeRegistrationExportRecords(notification.FilePath), cancellationToken);
+                await _mediator.Publish(new TimeRegistration.ProjectFileCreatedReturnTimeRegistrationExport(notification.FilePath), cancellationToken);
                 return;
             }
 
