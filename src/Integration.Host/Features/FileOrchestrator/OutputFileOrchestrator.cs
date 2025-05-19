@@ -35,7 +35,8 @@ public static class OutputFileOrchestrator
         private readonly IMediator _mediator;
         private static readonly Random s_random = new();
 
-        public NotificationHandler(IOptions<IntegrationSettings> options,
+        public NotificationHandler(
+            IOptions<IntegrationSettings> options,
             IAgentMessageSerializationHelper agentMessageSerializationHelper,
             ILogger<NotificationHandler> logger,
             IMediator mediator)
@@ -63,7 +64,7 @@ public static class OutputFileOrchestrator
             {
                 //BE CAREFULL HERE Both scenario's cannot be supported concurrent.
                 // This is an example handling ProjectFiles
-                await _mediator.Publish(new ProjectFileCreated(notification.FilePath), cancellationToken);
+                await _mediator.Publish(new ProjectFiles.ProjectFileCreated(notification.FilePath), cancellationToken);
                 // This is an example handling Project and explains how to use the time registration feedback.
                 await _mediator.Publish(new ProjectFileCreatedReturnTimeRegistrationExportRecords(notification.FilePath), cancellationToken);
                 return;
