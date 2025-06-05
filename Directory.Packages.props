@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="MetalHeaven.Agent.Shared.External" Version="0.1.23" />
+    <PackageVersion Include="MetalHeaven.Agent.Shared.External" Version="0.1.43" />
     <PackageVersion Include="MetalHeaven.ExternalDataContracts" Version="0.4.87" />
   </ItemGroup>
   <ItemGroup>
