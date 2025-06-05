@@ -69,7 +69,7 @@ public static class ProjectFiles
                 // convert json to project object
                 var project = JsonConvert.DeserializeObject<ProjectV1>(json, settings);
 
-                _logger.LogInformation("Project deserialized succesfully, project id: {id}", project.Id);
+                _logger.LogInformation("Project deserialized successfully, project id: {Id}", project.Id);
 
                 // optional response if your using this to export to ERP.
                 var response = new ExportToErpResponse
@@ -137,7 +137,7 @@ public static class ProjectFiles
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occured while handling project files");
+                _logger.LogError(ex, "Error occurred while handling project files");
             }
 
         }

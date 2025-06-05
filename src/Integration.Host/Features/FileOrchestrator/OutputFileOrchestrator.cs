@@ -80,7 +80,7 @@ public static class OutputFileOrchestrator
                 return;
             }
 
-            _logger.LogWarning("File '{filePath}' is not a valid agent message or project file.", notification.FilePath);
+            _logger.LogWarning("File '{FilePath}' is not a valid agent message or project file", notification.FilePath);
 
         }
 
@@ -207,8 +207,8 @@ public static class OutputFileOrchestrator
 
                         messageResponse = new RequestArticlesSyncMessageResponse
                         {
-                            Articles = new AgentArticleImportRequest[]
-                            {
+                            Articles =
+                            [
                                 new()
                                 {
                                     Id = 1,
@@ -249,8 +249,8 @@ public static class OutputFileOrchestrator
                                     {
                                         new ScalePrice { Price = 200, Quantity = 0 }, new ScalePrice { Price = 100, Quantity = 50 }
                                     }
-                                },
-                            },
+                                }
+                            ],
                             EventLogs = new List<EventLog>
                             {
                                 new()

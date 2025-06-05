@@ -67,7 +67,7 @@ public static class TimeRegistration
                 // convert json to project object
                 var project = JsonConvert.DeserializeObject<ProjectV1>(json, settings);
 
-                _logger.LogInformation("Project deserialized succesfully, project id: {id}", project.Id);
+                _logger.LogInformation("Project deserialized successfully, project id: {id}", project.Id);
 
                 // optional response if your using this to export to ERP.
                 // this is an example to simulate the TimeRegistrationExport with Random productionTimeInSeconds
