@@ -28,12 +28,15 @@ public class OutputFileWatcherService : FileWatcherService
 
     protected override void OnAllChanges(object sender, FileSystemEventArgs e)
     {
+        bool? isDone = null;
         try
         {
             switch (e.ChangeType)
             {
                 case WatcherChangeTypes.Created:
                     _mediator.Publish(new OutputFileOrchestrator.OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
+                    isDone = true;
+                    _logger.LogInformation("Successfully processed {Event} for file {FilePath}", e.ChangeType, e.FullPath);
                     break;
                 case WatcherChangeTypes.Deleted:
                 case WatcherChangeTypes.Changed:
@@ -46,12 +49,18 @@ public class OutputFileWatcherService : FileWatcherService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error while processing {event} for file {filePath}", e.ChangeType, e.FullPath);
+            isDone = false;
+            _logger.LogError(ex, "Error while processing {Event} for file {FilePath}", e.ChangeType, e.FullPath);
+        }
+        finally
+        {
+            MoveHandledFile(e.FullPath, isDone);
         }
     }
 
     protected override void OnExistingFile(object sender, FileSystemEventArgs e)
     {
+        bool? isDone = null;
         try
         {
             switch (e.ChangeType)
@@ -62,7 +71,10 @@ public class OutputFileWatcherService : FileWatcherService
                 case WatcherChangeTypes.Renamed:
                     break;
                 case WatcherChangeTypes.All:
-                    _mediator.Publish(new OutputFileOrchestrator.OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
+                    _mediator.Publish(new OutputFileOrchestrator.OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter()
+                        .GetResult();
+                    isDone = true;
+                    _logger.LogInformation("Successfully processed {Event} for file {FilePath}", e.ChangeType, e.FullPath);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -70,7 +82,50 @@ public class OutputFileWatcherService : FileWatcherService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error while processing {event} for file {filePath}", e.ChangeType, e.FullPath);
+            isDone = false;
+            _logger.LogError(ex, "Error while processing {Event} for file {FilePath}", e.ChangeType, e.FullPath);
+        }
+        finally
+        {
+            MoveHandledFile(e.FullPath, isDone);
+        }
+    }
+
+    private void MoveHandledFile(string filePath, bool? isDone)
+    {
+        switch (isDone)
+        {
+            case true:
+                {
+                    // move file to done directory
+                    filePath.MoveFileToDirectory("done");
+                    // also move the file with the same name but .zip in the input directory to done directory
+                    var zipFilePath = Path.ChangeExtension(filePath, ".zip");
+                    if (File.Exists(zipFilePath))
+                    {
+                        zipFilePath.MoveFileToDirectory("done");
+                    }
+
+                    break;
+                }
+            case false:
+                {
+                    // move file to error directory
+                    filePath.MoveFileToDirectory("error");
+                    // also move the file with the same name but .zip in the input directory to error directory
+                    var zipFilePath = Path.ChangeExtension(filePath, ".zip");
+                    if (File.Exists(zipFilePath))
+                    {
+                        zipFilePath.MoveFileToDirectory("error");
+                    }
+
+                    break;
+                }
+            case null:
+                {
+                    // do nothing, file is not handled
+                    break;
+                }
         }
     }
 }

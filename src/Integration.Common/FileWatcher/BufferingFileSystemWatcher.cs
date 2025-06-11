@@ -321,7 +321,6 @@ public class BufferingFileSystemWatcher : Component
         foreach (var fileInfo in existingFiles)
         {
             InvokeHandler(_onExistedHandler, new FileSystemEventArgs(WatcherChangeTypes.All, Path, fileInfo.Name));
-            InvokeHandler(_onAllChangesHandler, new FileSystemEventArgs(WatcherChangeTypes.All, Path, fileInfo.Name));
         }
     }
 
