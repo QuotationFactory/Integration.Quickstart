@@ -19,12 +19,19 @@ public static class IntegrationSettingsExtensions
     public static bool DirectoryExistsOrCreate(this string directory, bool createIfNotExists = false)
     {
         if (string.IsNullOrWhiteSpace(directory))
+        {
             return false;
+        }
 
         if (Directory.Exists(directory))
+        {
             return true;
+        }
 
-        if (!createIfNotExists) return false;
+        if (!createIfNotExists)
+        {
+            return false;
+        }
 
         Directory.CreateDirectory(directory);
 
@@ -36,10 +43,11 @@ public static class IntegrationSettingsExtensions
         var totalPath = Path.Combine(rootDirectoryPath, subDir);
 
         if (Directory.Exists(totalPath))
+        {
             return totalPath;
+        }
 
-        if (!Directory.Exists(totalPath))
-            Directory.CreateDirectory(totalPath);
+        Directory.CreateDirectory(totalPath);
 
         return totalPath;
     }
@@ -56,7 +64,9 @@ public static class IntegrationSettingsExtensions
     public static string MoveFileToInput(this IntegrationSettings settings, string filePath)
     {
         if (!File.Exists(filePath))
+        {
             throw new FileNotFoundException("File not found", filePath);
+        }
 
         var subDirectoryPath = settings.GetInputDirectory();
 
