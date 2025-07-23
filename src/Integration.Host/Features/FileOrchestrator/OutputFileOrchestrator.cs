@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Integration.Host.Configuration;
@@ -372,6 +373,27 @@ public static class OutputFileOrchestrator
                             };
                             break;
                         }
+                    case RequestSellingBuyingPartyArticleMessage requestSellingBuyingPartyArticleMessage:
+                        {
+                            // implement business logic here
+                            // query the database or any other data source to get the required data
+                            // for example, let's assume we have a list of requests
+
+                            //required RequestSellingBuyingPartyArticleMessageResponse
+                            messageResponse = new RequestSellingBuyingPartyArticleMessageResponse()
+                            {
+                                ProjectId = requestSellingBuyingPartyArticleMessage.ProjectId,
+
+                                Responses = requestSellingBuyingPartyArticleMessage.Requests.Select(r => new SellingBuyingPartyArticleResponse
+                                {
+                                    BoMItemId = r.BoMItemId,
+                                    BuyingPartyArticleNumber = $"BUYING-ART-{r.BoMItemId}",
+                                    SellingPartyArticleNumber = $"SELLING-ART-{r.BoMItemId}",
+                                }).ToList()
+                            };
+                            break;
+                        }
+                        break;
                     default:
                         throw new Exception($"Cannot process message {message.MessageType}");
                 }
