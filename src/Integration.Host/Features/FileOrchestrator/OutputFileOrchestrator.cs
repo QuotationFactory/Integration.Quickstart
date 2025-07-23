@@ -138,6 +138,37 @@ public static class OutputFileOrchestrator
         {
             try
             {
+                var request = AgentRequest.Create(message);
+                var result = await _mediator.Send(request);
+                // convert response message to json
+                var json = _agentMessageSerializationHelper.ToJson(result);
+
+                // get temp file path
+                var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
+
+                // save json to temp file
+                await File.WriteAllTextAsync(tempFile, json);
+
+                // move file to input directory
+                _integrationSettings.MoveFileToInput(tempFile);
+
+                _logger.LogInformation("message file successfully processed");
+            }
+            catch (NotImplementedException)
+            {
+                // do not log NotImplementedException, this is expected when the message is not implemented
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+        }
+
+        private async Task HandleMessageBackup(IAgentMessage message)
+        {
+
+            try
+            {
                 IAgentMessage messageResponse;
 
                 // process message
@@ -393,7 +424,6 @@ public static class OutputFileOrchestrator
                             };
                             break;
                         }
-                        break;
                     default:
                         throw new Exception($"Cannot process message {message.MessageType}");
                 }
