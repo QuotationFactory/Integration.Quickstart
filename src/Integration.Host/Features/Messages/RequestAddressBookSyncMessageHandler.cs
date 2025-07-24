@@ -2,15 +2,26 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Integration.Host.Configuration;
 using Integration.Host.Features.FileOrchestrator;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Versioned.ExternalDataContracts.Contracts.AddressBook;
 
 namespace Integration.Host.Features.Messages;
 
 public class RequestAddressBookSyncMessageHandler : IAgentRequestHandler<RequestAddressBookSyncMessage>
 {
+    private readonly ILogger<RequestAddressBookSyncMessageHandler> _logger;
+    private readonly IntegrationSettings _integrationSettings;
+
+    public RequestAddressBookSyncMessageHandler(ILogger<RequestAddressBookSyncMessageHandler> logger, IOptions<IntegrationSettings> options)
+    {
+        _logger = logger;
+        _integrationSettings = options.Value;
+    }
     public Task<IAgentMessage> Handle(AgentRequest<RequestAddressBookSyncMessage> request, CancellationToken cancellationToken)
     {
         var msg = request.Message;
@@ -65,7 +76,11 @@ public class RequestAddressBookSyncMessageHandler : IAgentRequestHandler<Request
         };
         #endregion
 
-        throw new NotImplementedException();
+        if (_integrationSettings.EnableAddressBookSyncMessage == false)
+        {
+            throw new NotImplementedException();
+        }
+        _logger.LogInformation("Address book sync message handler is enabled, processing message...");
         return Task.FromResult<IAgentMessage>(result);
     }
 }

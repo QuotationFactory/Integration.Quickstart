@@ -28,7 +28,6 @@ public static class ChangeProjectOrderNumberMessageExample
 
         #endregion
 
-        throw new NotImplementedException();
         return Task.FromResult<IAgentMessage>(result);
     }
 }

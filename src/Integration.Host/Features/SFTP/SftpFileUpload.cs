@@ -56,7 +56,7 @@ public static class SftpFileUpload
                 return;
             }
 
-            var projectId = await GetProjectIdAsync(notification.FilePath);
+            var projectId = GetProjectId(notification.FilePath);
             var processedSuccess = false;
 
             try
@@ -158,7 +158,7 @@ public static class SftpFileUpload
             }
         }
 
-        private async Task<Guid> GetProjectIdAsync(string notificationFilePath)
+        private static Guid GetProjectId(string notificationFilePath)
         {
             // define json serializer settings
             var settings = new JsonSerializerSettings();
@@ -167,7 +167,7 @@ public static class SftpFileUpload
             settings.SerializationBinder = new CrossPlatformTypeBinder();
 
             // read all text from file that is created
-            var json = await File.ReadAllTextAsync(notificationFilePath);
+            var json = File.ReadAllText(notificationFilePath);
 
             // convert json to project object
             var project = JsonConvert.DeserializeObject<ProjectV1>(json, settings);

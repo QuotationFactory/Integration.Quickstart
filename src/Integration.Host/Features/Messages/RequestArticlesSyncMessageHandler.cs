@@ -2,15 +2,26 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Integration.Host.Configuration;
 using Integration.Host.Features.FileOrchestrator;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Versioned.ExternalDataContracts.Contracts.Article;
 
 namespace Integration.Host.Features.Messages;
 
 public class RequestArticlesSyncMessageHandler : IAgentRequestHandler<RequestArticlesSyncMessage>
 {
+    private readonly ILogger<RequestArticlesSyncMessageHandler> _logger;
+    private readonly IntegrationSettings _integrationSettings;
+    public RequestArticlesSyncMessageHandler(ILogger<RequestArticlesSyncMessageHandler> logger, IOptions<IntegrationSettings> options)
+    {
+        _logger = logger;
+        _integrationSettings = options.Value;
+
+    }
     public Task<IAgentMessage> Handle(AgentRequest<RequestArticlesSyncMessage> request, CancellationToken cancellationToken)
     {
         var msg = request.Message;
@@ -72,8 +83,11 @@ public class RequestArticlesSyncMessageHandler : IAgentRequestHandler<RequestArt
         };
         #endregion
 
-        throw new NotImplementedException();
-
+        if (_integrationSettings.EnableArticleSyncMessages == false)
+        {
+            throw new NotImplementedException();
+        }
+        _logger.LogInformation("Articles sync message handler is enabled, processing message...");
         return Task.FromResult<IAgentMessage>(result);
     }
 }

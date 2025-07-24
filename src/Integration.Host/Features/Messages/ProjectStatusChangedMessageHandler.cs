@@ -1,15 +1,26 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Integration.Host.Configuration;
 using Integration.Host.Features.FileOrchestrator;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Versioned.ExternalDataContracts.Enums;
 
 namespace Integration.Host.Features.Messages;
 
 public class ProjectStatusChangedMessageHandler : IAgentRequestHandler<ProjectStatusChangedMessage>
 {
+    private readonly ILogger<ProjectStatusChangedMessageHandler> _logger;
+    private readonly IntegrationSettings _integrationSettings;
+
+    public ProjectStatusChangedMessageHandler(ILogger<ProjectStatusChangedMessageHandler> logger, IOptions<IntegrationSettings> options)
+    {
+        _logger = logger;
+        _integrationSettings = options.Value;
+    }
     public Task<IAgentMessage> Handle(AgentRequest<ProjectStatusChangedMessage> request, CancellationToken cancellationToken)
     {
         var msg = request.Message;
@@ -55,7 +66,11 @@ public class ProjectStatusChangedMessageHandler : IAgentRequestHandler<ProjectSt
 
         #endregion
 
-        throw new NotImplementedException();
+        if (_integrationSettings.EnableProjectStatusChangedMessages == false)
+        {
+            throw new NotImplementedException();
+        }
+        _logger.LogInformation("Project status changed message handler is enabled, processing message...");
         return Task.FromResult<IAgentMessage>(result);
     }
 }

@@ -62,9 +62,25 @@ public static class OutputFileOrchestrator
             {
                 //BE CAREFULL HERE Both scenario's cannot be supported concurrent.
                 // This is an example handling ProjectFiles
-                await _mediator.Publish(new ProjectFiles.ProjectFileCreated(notification.FilePath), cancellationToken);
+                if(_integrationSettings.EnableProjectFiles)
+                {
+                    _logger.LogInformation("Processing project file: {FilePath}", notification.FilePath);
+                    await _mediator.Publish(new ProjectFiles.ProjectFileCreated(notification.FilePath), cancellationToken);
+                }
+
                 // This is an example handling Project and explains how to use the time registration feedback.
-                await _mediator.Publish(new TimeRegistration.ProjectFileCreatedReturnTimeRegistrationExport(notification.FilePath), cancellationToken);
+                if(_integrationSettings.EnableProjectFilesWithTimeRegistration)
+                {
+                    _logger.LogInformation("Processing project file with time registration: {FilePath}", notification.FilePath);
+                    await _mediator.Publish(new TimeRegistration.ProjectFileCreatedReturnTimeRegistrationExport(notification.FilePath), cancellationToken);
+                }
+
+                if(_integrationSettings.EnableProjectFiles == false && _integrationSettings.EnableProjectFilesWithTimeRegistration == false)
+                {
+                    _logger.LogWarning("Project files are not enabled, but file is detected as project file: {FilePath}", notification.FilePath);
+                    throw new NotImplementedException();
+                }
+
                 return;
             }
 
@@ -75,7 +91,7 @@ public static class OutputFileOrchestrator
             }
 
             _logger.LogWarning("File '{FilePath}' is not a valid agent message or project file", notification.FilePath);
-
+            throw new ArgumentException($"File '{notification.FilePath}' is not a valid agent message or project file");
         }
 
         private async Task CheckSafeFileAccessAsync(string filePath)

@@ -2,16 +2,26 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Integration.Host.Configuration;
 using Integration.Host.Features.FileOrchestrator;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Integration.Host.Features.Messages;
 
 public class RequestManufacturabilityCheckOfPartTypeMessageHandler : IAgentRequestHandler<RequestManufacturabilityCheckOfPartTypeMessage>
 {
+    private readonly ILogger<RequestManufacturabilityCheckOfPartTypeMessageHandler> _logger;
+    private readonly IntegrationSettings _integrationSettings;
     private static readonly Random s_random = new();
 
+    public RequestManufacturabilityCheckOfPartTypeMessageHandler(ILogger<RequestManufacturabilityCheckOfPartTypeMessageHandler> logger, IOptions<IntegrationSettings> options)
+    {
+        _logger = logger;
+        _integrationSettings = options.Value;
+    }
     public Task<IAgentMessage> Handle(AgentRequest<RequestManufacturabilityCheckOfPartTypeMessage> request,
         CancellationToken cancellationToken)
     {
@@ -58,7 +68,11 @@ public class RequestManufacturabilityCheckOfPartTypeMessageHandler : IAgentReque
         };
         #endregion
 
-        throw new NotImplementedException();
+        if (_integrationSettings.EnableManufacturabilityCheckOfPartTypeMessages == false)
+        {
+            throw new NotImplementedException();
+        }
+        _logger.LogInformation("Manufacturability check message handler is enabled, processing message...");
         return Task.FromResult<IAgentMessage>(result);
     }
 }

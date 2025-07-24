@@ -48,8 +48,6 @@ public static class ChangeProjectStatusMessageExample
         };
 
         #endregion
-
-        throw new NotImplementedException();
         return Task.FromResult<IAgentMessage>(result);
     }
 }

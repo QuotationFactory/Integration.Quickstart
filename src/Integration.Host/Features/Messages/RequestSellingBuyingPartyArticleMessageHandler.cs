@@ -2,14 +2,24 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Integration.Host.Configuration;
 using Integration.Host.Features.FileOrchestrator;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Integration.Host.Features.Messages;
 
 public class RequestSellingBuyingPartyArticleMessageHandler : IAgentRequestHandler<RequestSellingBuyingPartyArticleMessage>
 {
+    private readonly ILogger<RequestSellingBuyingPartyArticleMessageHandler> _logger;
+    private readonly IntegrationSettings _integrationSettings;
+    public RequestSellingBuyingPartyArticleMessageHandler(ILogger<RequestSellingBuyingPartyArticleMessageHandler> logger, IOptions<IntegrationSettings> options)
+    {
+        _logger = logger;
+        _integrationSettings = options.Value;
+    }
     public Task<IAgentMessage> Handle(AgentRequest<RequestSellingBuyingPartyArticleMessage> request, CancellationToken cancellationToken)
     {
         var msg = request.Message;
@@ -33,7 +43,12 @@ public class RequestSellingBuyingPartyArticleMessageHandler : IAgentRequestHandl
             }).ToList()
         };
        #endregion
-       throw new NotImplementedException();
+
+       if (_integrationSettings.EnableSellingBuyingPartyArticleMessages == false)
+       {
+           throw new NotImplementedException();
+       }
+       _logger.LogInformation("Selling buying party article message handler is enabled, processing message...");
        return Task.FromResult<IAgentMessage>(result);
     }
 }
