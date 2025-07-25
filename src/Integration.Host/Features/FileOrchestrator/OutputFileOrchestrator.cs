@@ -60,6 +60,18 @@ public static class OutputFileOrchestrator
 
             if (UseProjectFileHandle(notification.FilePath))
             {
+                if(_integrationSettings.EnableProjectFiles == false && _integrationSettings.EnableProjectFilesWithTimeRegistration == false)
+                {
+                    _logger.LogWarning("Project files are not enabled, but file is detected as project file: {FilePath}", notification.FilePath);
+                    throw new NotImplementedException();
+                }
+
+                if(_integrationSettings.EnableProjectFiles && _integrationSettings.EnableProjectFilesWithTimeRegistration)
+                {
+                    _logger.LogWarning("Both project files and project files with time registration are enabled, this is not supported: {FilePath}", notification.FilePath);
+                    throw new ArgumentException("Both project files and project files with time registration are enabled, this is not supported.");
+                }
+
                 //BE CAREFULL HERE Both scenario's cannot be supported concurrent.
                 // This is an example handling ProjectFiles
                 if(_integrationSettings.EnableProjectFiles)
@@ -74,13 +86,6 @@ public static class OutputFileOrchestrator
                     _logger.LogInformation("Processing project file with time registration: {FilePath}", notification.FilePath);
                     await _mediator.Publish(new TimeRegistration.ProjectFileCreatedReturnTimeRegistrationExport(notification.FilePath), cancellationToken);
                 }
-
-                if(_integrationSettings.EnableProjectFiles == false && _integrationSettings.EnableProjectFilesWithTimeRegistration == false)
-                {
-                    _logger.LogWarning("Project files are not enabled, but file is detected as project file: {FilePath}", notification.FilePath);
-                    throw new NotImplementedException();
-                }
-
                 return;
             }
 

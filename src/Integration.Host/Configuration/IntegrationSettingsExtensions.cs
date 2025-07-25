@@ -88,7 +88,7 @@ public static class IntegrationSettingsExtensions
         {
             throw new ArgumentException("Directory path cannot be null or empty", nameof(directoryPath));
         }
-        var destFileName = Path.Combine(Path.GetDirectoryName(filePath) ?? string.Empty, directoryPath, Path.GetFileName(filePath));
+        var destFileName = Path.Combine(directoryPath, Path.GetFileName(filePath));
         return filePath.MoveFile(destFileName);
     }
 

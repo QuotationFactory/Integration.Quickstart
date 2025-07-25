@@ -98,12 +98,14 @@ public class OutputFileWatcherService : FileWatcherService
             case true:
                 {
                     // move file to done directory
-                    filePath.MoveFileToDirectory("done");
+                    var destinationFilePath = Path.Combine(Path.GetDirectoryName(filePath)?? string.Empty, "done");
+                    filePath.MoveFileToDirectory(destinationFilePath);
                     // also move the file with the same name but .zip in the input directory to done directory
                     var zipFilePath = Path.ChangeExtension(filePath, ".zip");
                     if (File.Exists(zipFilePath))
                     {
-                        zipFilePath.MoveFileToDirectory("done");
+                        var zipDestinationFilePath = Path.Combine(Path.GetDirectoryName(zipFilePath)?? string.Empty, "done");
+                        zipFilePath.MoveFileToDirectory(zipDestinationFilePath);
                     }
 
                     break;
@@ -111,12 +113,14 @@ public class OutputFileWatcherService : FileWatcherService
             case false:
                 {
                     // move file to error directory
-                    filePath.MoveFileToDirectory("error");
+                    var destinationFilePath = Path.Combine(Path.GetDirectoryName(filePath)?? string.Empty, "error");
+                    filePath.MoveFileToDirectory(destinationFilePath);
                     // also move the file with the same name but .zip in the input directory to error directory
                     var zipFilePath = Path.ChangeExtension(filePath, ".zip");
                     if (File.Exists(zipFilePath))
                     {
-                        zipFilePath.MoveFileToDirectory("error");
+                        var zipDestinationFilePath = Path.Combine(Path.GetDirectoryName(zipFilePath)?? string.Empty, "error");
+                        zipFilePath.MoveFileToDirectory(zipDestinationFilePath);
                     }
 
                     break;
