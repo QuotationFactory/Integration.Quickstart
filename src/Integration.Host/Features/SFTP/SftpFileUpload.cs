@@ -56,15 +56,12 @@ public static class SftpFileUpload
                 return;
             }
 
-            var projectId = await GetProjectIdAsync(notification.FilePath);
-            var processedSuccess = false;
-
+            var projectId = GetProjectId(notification.FilePath);
             try
             {
 
                 await UploadFileToSftpAsync(notification.FilePath, cancellationToken);
                 await SendErpResultAsync(notification.FilePath, projectId, true);
-                processedSuccess = true;
             }
             catch (Exception e)
             {
@@ -76,44 +73,6 @@ public static class SftpFileUpload
                 await SendErpResultAsync(notification.FilePath, projectId, false, eventLogs);
 
                 _logger.LogError(e, "Error while processing file {filePath}", notification.FilePath);
-            }
-            finally
-            {
-                if (processedSuccess)
-                {
-                    // Move the file to a processed directory
-                    var processedDirectory = Path.Combine(Path.GetDirectoryName(notification.FilePath) ?? string.Empty, "processed");
-                    var result = notification.FilePath.MoveFileToDirectory(processedDirectory);
-                    _logger.LogInformation("Moved file {filePath} to processed directory {processedDirectory}", notification.FilePath,
-                        result);
-
-                    if (_sftpSettings.UploadZipFile)
-                    {
-                        // Move the file to a processed directory
-                        var zipFilePath = Path.ChangeExtension(notification.FilePath, ".zip");
-                        var processedDirectoryZip = Path.Combine(Path.GetDirectoryName(zipFilePath) ?? string.Empty, "processed");
-                        var resultZip = zipFilePath.MoveFileToDirectory(processedDirectoryZip);
-                        _logger.LogInformation("Moved file {zipFilePath} to processed directory {processedDirectoryZip}", zipFilePath,
-                            resultZip);
-                    }
-                }
-                else
-                {
-                    // Move the file to a processed directory
-                    var processedDirectory = Path.Combine(Path.GetDirectoryName(notification.FilePath) ?? string.Empty, "error");
-                    var result = notification.FilePath.MoveFileToDirectory(processedDirectory);
-                    _logger.LogInformation("Moved file {filePath} to error directory {processedDirectory}", notification.FilePath, result);
-
-                    if (_sftpSettings.UploadZipFile)
-                    {
-                        // Move the file to a processed directory
-                        var zipFilePath = Path.ChangeExtension(notification.FilePath, ".zip");
-                        var processedDirectoryZip = Path.Combine(Path.GetDirectoryName(zipFilePath) ?? string.Empty, "error");
-                        var resultZip = zipFilePath.MoveFileToDirectory(processedDirectoryZip);
-                        _logger.LogInformation("Moved file {zipFilePath} to processed directory {processedDirectoryZip}", zipFilePath,
-                            resultZip);
-                    }
-                }
             }
         }
 
@@ -158,7 +117,7 @@ public static class SftpFileUpload
             }
         }
 
-        private async Task<Guid> GetProjectIdAsync(string notificationFilePath)
+        private static Guid GetProjectId(string notificationFilePath)
         {
             // define json serializer settings
             var settings = new JsonSerializerSettings();
@@ -167,7 +126,7 @@ public static class SftpFileUpload
             settings.SerializationBinder = new CrossPlatformTypeBinder();
 
             // read all text from file that is created
-            var json = await File.ReadAllTextAsync(notificationFilePath);
+            var json = File.ReadAllText(notificationFilePath);
 
             // convert json to project object
             var project = JsonConvert.DeserializeObject<ProjectV1>(json, settings);

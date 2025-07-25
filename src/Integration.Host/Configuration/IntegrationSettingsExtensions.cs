@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Integration.Host.Configuration;
 
@@ -83,9 +84,10 @@ public static class IntegrationSettingsExtensions
         {
             throw new FileNotFoundException("File not found", filePath);
         }
-
-        Directory.CreateDirectory(directoryPath);
-
+        if (string.IsNullOrWhiteSpace(directoryPath))
+        {
+            throw new ArgumentException("Directory path cannot be null or empty", nameof(directoryPath));
+        }
         var destFileName = Path.Combine(directoryPath, Path.GetFileName(filePath));
         return filePath.MoveFile(destFileName);
     }
@@ -104,6 +106,7 @@ public static class IntegrationSettingsExtensions
             result = Path.Combine(Path.GetDirectoryName(destinationFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(destinationFilePath)} (1){Path.GetExtension(destinationFilePath)}");
         }
 
+        Directory.CreateDirectory(Path.GetDirectoryName(destinationFilePath) ?? string.Empty);
         // Copy the file to the processed directory
         File.Copy(filePath, destinationFilePath, true);
         // delete the original file
