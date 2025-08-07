@@ -3,8 +3,8 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="MetalHeaven.Agent.Shared.External" Version="0.1.43" />
-    <PackageVersion Include="MetalHeaven.ExternalDataContracts" Version="0.4.94" />
+    <PackageVersion Include="MetalHeaven.Agent.Shared.External" Version="0.1.46" />
+    <PackageVersion Include="MetalHeaven.ExternalDataContracts" Version="0.4.104" />
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="MediatR" Version="12.4.1" />

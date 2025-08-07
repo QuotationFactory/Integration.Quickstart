@@ -69,6 +69,19 @@ public class RequestAddressBookSyncMessageHandler : IAgentRequestHandler<Request
 
                 }
             ],
+            // this is a feature to send new created relations/customers in addressbook
+            // the invite to get access to the portal.
+            AutoInviteImportRequests =
+            [
+                new AgentAutoInviteImportRequest()
+                {
+                    Id = 1,
+                    Code = "Debtor Code", // this should be an existing code
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "user@example.com"
+                }
+            ],
             EventLogs = new List<EventLog>
             {
                 new() { DateTime = DateTime.UtcNow, Level = EventLogLevel.Information, Message = "This is some random information" }
