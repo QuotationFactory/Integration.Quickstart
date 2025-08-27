@@ -1,27 +1,29 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <MicrosoftExtensionsVersion>9.0.0</MicrosoftExtensionsVersion>
+    <MicrosoftExtensionsPatchVersion>9.0.8</MicrosoftExtensionsPatchVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="MetalHeaven.Agent.Shared.External" Version="0.1.46" />
     <PackageVersion Include="MetalHeaven.ExternalDataContracts" Version="0.4.104" />
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Include="MediatR" Version="12.4.1" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.3" />
+    <PackageVersion Include="MediatR" Version="13.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftExtensionsPatchVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftExtensionsPatchVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MicrosoftExtensionsPatchVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.WindowsServices" Version="$(MicrosoftExtensionsPatchVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="$(MicrosoftExtensionsPatchVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MicrosoftExtensionsPatchVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="$(MicrosoftExtensionsPatchVersion)" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageVersion Include="Polly" Version="8.5.2" />
-    <PackageVersion Include="Serilog" Version="4.2.0" />
+    <PackageVersion Include="Polly" Version="8.6.3" />
+    <PackageVersion Include="Serilog" Version="4.3.0" />
     <PackageVersion Include="Serilog.Extensions.Hosting" Version="9.0.0" />
-    <PackageVersion Include="Serilog.Extensions.Logging" Version="9.0.0" />
+    <PackageVersion Include="Serilog.Extensions.Logging" Version="9.0.2" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
-    <PackageVersion Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageVersion Include="SharpZipLib" Version="1.4.2" />
     <PackageVersion Include="SSH.NET" Version="2025.0.0" />
   </ItemGroup>
