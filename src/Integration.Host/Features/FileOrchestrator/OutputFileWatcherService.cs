@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Integration.Common.FileWatcher;
 using Integration.Host.Configuration;
 using MediatR;
@@ -16,11 +17,18 @@ public class OutputFileWatcherService : FileWatcherService
 {
     private readonly IMediator _mediator;
     private readonly ILogger<OutputFileWatcherService> _logger;
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
 
     public OutputFileWatcherService(IMediator mediator, IOptions<IntegrationSettings> options, ILogger<OutputFileWatcherService> logger)
     {
         _mediator = mediator;
         _logger = logger;
+
+        if (options.Value.NumberOfConcurrentTasks > 1)
+        {
+            _semaphore = new(options.Value.NumberOfConcurrentTasks, options.Value.NumberOfConcurrentTasks);
+            _logger.LogInformation("Semaphore initialized with {NumberOfConcurrentTasks} concurrent tasks", options.Value.NumberOfConcurrentTasks);
+        }
 
         // add file watcher to the output directory
         AddFileWatcher(options.Value.GetOrCreateOutputDirectory(createIfNotExists: true), "*.json");
@@ -31,6 +39,7 @@ public class OutputFileWatcherService : FileWatcherService
         bool? isDone = null;
         try
         {
+            _semaphore.Wait();
             switch (e.ChangeType)
             {
                 case WatcherChangeTypes.Created:
@@ -55,6 +64,7 @@ public class OutputFileWatcherService : FileWatcherService
         finally
         {
             MoveHandledFile(e.FullPath, isDone);
+            _semaphore.Release();
         }
     }
 
@@ -63,6 +73,7 @@ public class OutputFileWatcherService : FileWatcherService
         bool? isDone = null;
         try
         {
+            _semaphore.Wait();
             switch (e.ChangeType)
             {
                 case WatcherChangeTypes.Created:
@@ -88,6 +99,7 @@ public class OutputFileWatcherService : FileWatcherService
         finally
         {
             MoveHandledFile(e.FullPath, isDone);
+            _semaphore.Release();
         }
     }
 
