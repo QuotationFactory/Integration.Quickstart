@@ -19,6 +19,8 @@ public class IntegrationSettings
     [Required]
     public required string RootDirectory { get; set; }
     [Required]
+    public required int NumberOfConcurrentTasks { get; set; }
+    [Required]
     public required bool EnableSftpUpload { get; set; }
     [Required]
     public required bool EnableProjectFiles { get; set; }
