@@ -23,8 +23,12 @@ public class ProjectStatusChangedMessageHandler : IAgentRequestHandler<ProjectSt
     }
     public Task<IAgentMessage> Handle(AgentRequest<ProjectStatusChangedMessage> request, CancellationToken cancellationToken)
     {
-        var msg = request.Message;
+        if (!_integrationSettings.EnableProjectStatusChangedMessages)
+        {
+            throw new NotImplementedException();
+        }
 
+        var msg = request.Message;
         // implement business logic here
 
         // for example, you might want to log the project status change or update a database
@@ -66,10 +70,7 @@ public class ProjectStatusChangedMessageHandler : IAgentRequestHandler<ProjectSt
 
         #endregion
 
-        if (_integrationSettings.EnableProjectStatusChangedMessages == false)
-        {
-            throw new NotImplementedException();
-        }
+
         _logger.LogInformation("Project status changed message handler is enabled, processing message...");
         return Task.FromResult<IAgentMessage>(result);
     }

@@ -41,6 +41,11 @@ public static class TimeRegistration
 
         public async Task Handle(ProjectFileCreatedReturnTimeRegistrationExport notification, CancellationToken cancellationToken)
         {
+            if (!_integrationSettings.EnableProjectFilesWithTimeRegistration)
+            {
+                throw new NotImplementedException();
+            }
+
             // define file paths
             var jsonFilePath = notification.FilePath;
             var zipFilePath = Path.ChangeExtension(notification.FilePath, ".zip");

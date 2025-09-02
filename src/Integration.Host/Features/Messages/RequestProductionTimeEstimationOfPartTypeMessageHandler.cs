@@ -23,6 +23,11 @@ public class RequestProductionTimeEstimationOfPartTypeMessageHandler : IAgentReq
     }
     public Task<IAgentMessage> Handle(AgentRequest<RequestProductionTimeEstimationOfPartTypeMessage> request, CancellationToken cancellationToken)
     {
+        if (!_integrationSettings.EnableProductionTimeEstimationOfPartTypeMessages)
+        {
+            throw new NotImplementedException();
+        }
+
         var msg = request.Message;
 
         // implement business logic here
@@ -49,13 +54,8 @@ public class RequestProductionTimeEstimationOfPartTypeMessageHandler : IAgentReq
                 }
             }
         };
-
         #endregion
 
-        if (_integrationSettings.EnableProductionTimeEstimationOfPartTypeMessages == false)
-        {
-            throw new NotImplementedException();
-        }
         _logger.LogInformation("Production time estimation message handler is enabled, processing message...");
         return Task.FromResult<IAgentMessage>(result);
     }

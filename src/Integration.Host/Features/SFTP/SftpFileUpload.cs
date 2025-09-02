@@ -43,6 +43,10 @@ public static class SftpFileUpload
 
         public async Task Handle(Upload notification, CancellationToken cancellationToken)
         {
+            if (!_integrationSettings.EnableSftpUpload)
+            {
+                throw new NotImplementedException();
+            }
 
             // default file creation timeout
             await Task.Delay(500, cancellationToken);

@@ -22,6 +22,11 @@ public class RequestSellingBuyingPartyArticleMessageHandler : IAgentRequestHandl
     }
     public Task<IAgentMessage> Handle(AgentRequest<RequestSellingBuyingPartyArticleMessage> request, CancellationToken cancellationToken)
     {
+        if (!_integrationSettings.EnableSellingBuyingPartyArticleMessages)
+        {
+            throw new NotImplementedException();
+        }
+
         var msg = request.Message;
 
         // implement business logic here
@@ -44,10 +49,6 @@ public class RequestSellingBuyingPartyArticleMessageHandler : IAgentRequestHandl
         };
        #endregion
 
-       if (_integrationSettings.EnableSellingBuyingPartyArticleMessages == false)
-       {
-           throw new NotImplementedException();
-       }
        _logger.LogInformation("Selling buying party article message handler is enabled, processing message...");
        return Task.FromResult<IAgentMessage>(result);
     }
