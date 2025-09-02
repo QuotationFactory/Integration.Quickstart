@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Integration.Common.Serialization;
 using Integration.Host.Configuration;
+using Integration.Host.Extensions;
 using MediatR;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Renci.SshNet;
-using Versioned.ExternalDataContracts;
 using Versioned.ExternalDataContracts.Contracts.Project;
 
 namespace Integration.Host.Features.SFTP;
@@ -117,19 +115,10 @@ public static class SftpFileUpload
             }
         }
 
-        private static Guid GetProjectId(string notificationFilePath)
+        private static Guid GetProjectId(string jsonFilePath)
         {
-            // define json serializer settings
-            var settings = new JsonSerializerSettings();
-            settings.SetJsonSettings();
-            settings.AddJsonConverters();
-            settings.SerializationBinder = new CrossPlatformTypeBinder();
-
-            // read all text from file that is created
-            var json = File.ReadAllText(notificationFilePath);
-
             // convert json to project object
-            var project = JsonConvert.DeserializeObject<ProjectV1>(json, settings);
+            var project = JsonHelper.Deserialize<ProjectV1>(jsonFilePath);
 
             return project.Id;
         }

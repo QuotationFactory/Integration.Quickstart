@@ -4,15 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Integration.Common.Serialization;
 using Integration.Host.Configuration;
+using Integration.Host.Extensions;
 using MediatR;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Versioned.ExternalDataContracts;
 using Versioned.ExternalDataContracts.Contracts.Project;
 
 namespace Integration.Host.Features.Project;
@@ -57,17 +55,8 @@ public static class ProjectFiles
                     _logger.LogInformation("Found file \'{FileName}\' in zipfile, size {FileBytesLength}", fileName, fileBytes.Length);
                 }
 
-                // define json serializer settings
-                var settings = new JsonSerializerSettings();
-                settings.SetJsonSettings();
-                settings.AddJsonConverters();
-                settings.SerializationBinder = new CrossPlatformTypeBinder();
-
-                // read all text from file that is created
-                var json = await File.ReadAllTextAsync(jsonFilePath, cancellationToken);
-
                 // convert json to project object
-                var project = JsonConvert.DeserializeObject<ProjectV1>(json, settings);
+                var project = JsonHelper.Deserialize<ProjectV1>(jsonFilePath);
 
                 _logger.LogInformation("Project deserialized successfully, project id: {Id}", project.Id);
 
