@@ -1,9 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 using MetalHeaven.Agent.Shared.External.Messages;
 using Versioned.ExternalDataContracts.Contracts.AddressBook;
-using Versioned.ExternalDataContracts.Enums;
 
 namespace Integration.Host.Features.Messages;
 
