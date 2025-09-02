@@ -24,6 +24,11 @@ public class RequestAddressBookSyncMessageHandler : IAgentRequestHandler<Request
     }
     public Task<IAgentMessage> Handle(AgentRequest<RequestAddressBookSyncMessage> request, CancellationToken cancellationToken)
     {
+        if (!_integrationSettings.EnableAddressBookSyncMessage)
+        {
+            throw new NotImplementedException();
+        }
+
         var msg = request.Message;
         // implement business logic here
 
@@ -89,10 +94,7 @@ public class RequestAddressBookSyncMessageHandler : IAgentRequestHandler<Request
         };
         #endregion
 
-        if (_integrationSettings.EnableAddressBookSyncMessage == false)
-        {
-            throw new NotImplementedException();
-        }
+
         _logger.LogInformation("Address book sync message handler is enabled, processing message...");
         return Task.FromResult<IAgentMessage>(result);
     }

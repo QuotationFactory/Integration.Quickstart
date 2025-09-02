@@ -17,7 +17,6 @@ public static class RequestAutoInviteMessageResponseExample
 
         // this is a sample response, you should replace it with actual data from your business logic
 
-
         #region Example Response
         var result = new RequestAutoInviteMessageResponse()
         {

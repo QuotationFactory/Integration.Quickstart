@@ -41,6 +41,11 @@ public static class ProjectFiles
 
         public async Task Handle(ProjectFileCreated notification, CancellationToken cancellationToken)
         {
+            if (!_integrationSettings.EnableProjectFiles)
+            {
+                throw new NotImplementedException();
+            }
+
             // define file paths
             var jsonFilePath = notification.FilePath;
             var zipFilePath = Path.ChangeExtension(notification.FilePath, ".zip");

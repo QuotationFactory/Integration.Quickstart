@@ -25,6 +25,11 @@ public class RequestManufacturabilityCheckOfPartTypeMessageHandler : IAgentReque
     public Task<IAgentMessage> Handle(AgentRequest<RequestManufacturabilityCheckOfPartTypeMessage> request,
         CancellationToken cancellationToken)
     {
+        if (!_integrationSettings.EnableManufacturabilityCheckOfPartTypeMessages)
+        {
+            throw new NotImplementedException();
+        }
+
         var msg = request.Message;
 
         // implement business logic here
@@ -68,10 +73,7 @@ public class RequestManufacturabilityCheckOfPartTypeMessageHandler : IAgentReque
         };
         #endregion
 
-        if (_integrationSettings.EnableManufacturabilityCheckOfPartTypeMessages == false)
-        {
-            throw new NotImplementedException();
-        }
+
         _logger.LogInformation("Manufacturability check message handler is enabled, processing message...");
         return Task.FromResult<IAgentMessage>(result);
     }

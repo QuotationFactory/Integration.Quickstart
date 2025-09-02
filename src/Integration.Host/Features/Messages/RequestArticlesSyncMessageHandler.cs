@@ -24,6 +24,11 @@ public class RequestArticlesSyncMessageHandler : IAgentRequestHandler<RequestArt
     }
     public Task<IAgentMessage> Handle(AgentRequest<RequestArticlesSyncMessage> request, CancellationToken cancellationToken)
     {
+        if (!_integrationSettings.EnableArticleSyncMessages)
+        {
+            throw new NotImplementedException();
+        }
+
         var msg = request.Message;
 
         // implement business logic here
@@ -83,10 +88,6 @@ public class RequestArticlesSyncMessageHandler : IAgentRequestHandler<RequestArt
         };
         #endregion
 
-        if (_integrationSettings.EnableArticleSyncMessages == false)
-        {
-            throw new NotImplementedException();
-        }
         _logger.LogInformation("Articles sync message handler is enabled, processing message...");
         return Task.FromResult<IAgentMessage>(result);
     }

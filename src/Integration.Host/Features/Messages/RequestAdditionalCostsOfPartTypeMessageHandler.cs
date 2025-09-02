@@ -22,6 +22,11 @@ public class RequestAdditionalCostsOfPartTypeMessageHandler : IAgentRequestHandl
     }
     public Task<IAgentMessage> Handle(AgentRequest<RequestAdditionalCostsOfPartTypeMessage> request, CancellationToken cancellationToken)
     {
+        if (!_integrationSettings.EnableAdditionalCostsOfPartTypeMessages)
+        {
+            throw new NotImplementedException();
+        }
+
         var msg = request.Message;
 
         // implement business logic here
@@ -50,10 +55,6 @@ public class RequestAdditionalCostsOfPartTypeMessageHandler : IAgentRequestHandl
         };
         #endregion
 
-        if (_integrationSettings.EnableAdditionalCostsOfPartTypeMessages == false)
-        {
-            throw new NotImplementedException();
-        }
         _logger.LogInformation("Additional costs message handler is enabled, processing message...");
         return Task.FromResult<IAgentMessage>(result);
     }
