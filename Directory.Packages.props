@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="MetalHeaven.Agent.Shared.External" Version="0.1.46" />
-    <PackageVersion Include="MetalHeaven.ExternalDataContracts" Version="0.4.104" />
+    <PackageVersion Include="MetalHeaven.ExternalDataContracts" Version="0.4.106" />
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="MediatR" Version="13.0.0" />
