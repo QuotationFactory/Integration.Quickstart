@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using Integration.Host.Configuration;
+﻿using Integration.Host.Configuration;
 using Integration.Host.Extensions;
 using MediatR;
 using MetalHeaven.Agent.Shared.External.Interfaces;
@@ -63,7 +58,7 @@ public static class SftpFileUpload
             {
 
                 await UploadFileToSftpAsync(notification.FilePath, cancellationToken);
-                await SendErpResultAsync(notification.FilePath, projectId, true);
+                await SendErpResultAsync(notification.FilePath, projectId, true, []);
             }
             catch (Exception e)
             {
@@ -123,11 +118,15 @@ public static class SftpFileUpload
         {
             // convert json to project object
             var project = JsonHelper.Deserialize<ProjectV1>(jsonFilePath);
+            if (project is null)
+            {
+                throw new InvalidOperationException("Failed to deserialize project from file: project is null");
+            }
 
             return project.Id;
         }
 
-        private async Task SendErpResultAsync(string filePath, Guid projectId, bool success, List<EventLog> eventLogs = null)
+        private async Task SendErpResultAsync(string filePath, Guid projectId, bool success, List<EventLog> eventLogs)
         {
             // Here we want to implement the logic to send the result to ERP system
             // This is a placeholder for the actual sending logic.
@@ -136,7 +135,7 @@ public static class SftpFileUpload
             // optional response if your using this to export to ERP.
             var response = new ExportToErpResponse
             {
-                Source = "Sftp File Upload", Succeed = success, ProjectId = projectId, EventLogs = eventLogs ?? [],
+                Source = "Sftp File Upload", Succeed = success, ProjectId = projectId, EventLogs = eventLogs,
             };
 
             var responseJson = _agentMessageSerializationHelper.ToJson(response);

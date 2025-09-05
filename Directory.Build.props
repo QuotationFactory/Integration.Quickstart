@@ -5,4 +5,15 @@
     <RepositoryUrl>https://github.com/QuotationFactory/Integration.Quickstart</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);1591;VSTHRD200;SYSLIB0050;SYSLIB0051</NoWarn>
+    <!--
+    1591: Missing XML comment for publicly visible type or member
+    VSTHRD200: Use Async suffix for async methods
+    SYSLIB0050 / SYSLIB0051 : 'FormatterServices' is obsolete: 'Formatter-based serialization is obsolete and should not be used.' (https://aka.ms/dotnet-warnings/SYSLIB0050)
+    -->
+  </PropertyGroup>
 </Project>

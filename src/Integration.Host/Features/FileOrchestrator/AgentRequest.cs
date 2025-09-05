@@ -1,4 +1,3 @@
-using System;
 using MediatR;
 using MetalHeaven.Agent.Shared.External.Interfaces;
 
@@ -10,7 +9,9 @@ public static class AgentRequest
     {
         var messageType = message.GetType();
         var type = typeof(AgentRequest<>).MakeGenericType(messageType);
-        return Activator.CreateInstance(type, [message]) as IRequest<IAgentMessage>;
+        var result = Activator.CreateInstance(type, [message]) as IRequest<IAgentMessage>;
+        ArgumentNullException.ThrowIfNull(result);
+        return result;
     }
 }
 

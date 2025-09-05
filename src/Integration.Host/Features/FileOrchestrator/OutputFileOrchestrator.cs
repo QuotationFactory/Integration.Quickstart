@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
 using Integration.Host.Configuration;
 using Integration.Host.Features.Project;
 using Integration.Host.Features.SFTP;
