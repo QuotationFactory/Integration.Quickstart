@@ -1,4 +1,3 @@
-using System;
 using Integration.Host.Configuration;
 using Integration.Host.Features.FileOrchestrator;
 using Integration.Host.Features.SFTP;

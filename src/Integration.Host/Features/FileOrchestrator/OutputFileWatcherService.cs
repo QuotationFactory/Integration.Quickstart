@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using Integration.Common.FileWatcher;
+﻿using Integration.Common.FileWatcher;
 using Integration.Host.Configuration;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -71,26 +66,28 @@ public class OutputFileWatcherService : FileWatcherService
 
         foreach (var integrationType in integrationTypes)
         {
-            if (!Directory.Exists(Path.Combine(options.Value.RootDirectory, integrationType, "Output")))
+            if (!Directory.Exists(Path.Combine(options.Value.RootDirectory, integrationType!, "Output")))
             {
                 continue;
             }
 
-            AddFileWatcher(Path.Combine(options.Value.RootDirectory, integrationType, "Output"), "*.json");
+            AddFileWatcher(Path.Combine(options.Value.RootDirectory, integrationType!, "Output"), "*.json");
         }
 
     }
 
-    protected override void OnAllChanges(object sender, FileSystemEventArgs e)
+#pragma warning disable VSTHRD100
+    protected override async void OnAllChanges(object sender, FileSystemEventArgs e)
+#pragma warning restore VSTHRD100
     {
         bool? isDone = null;
         try
         {
-            _semaphore.Wait();
+            await _semaphore.WaitAsync();
             switch (e.ChangeType)
             {
                 case WatcherChangeTypes.Created:
-                    _mediator.Publish(new OutputFileOrchestrator.OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter().GetResult();
+                    await _mediator.Publish(new OutputFileOrchestrator.OutputFileCreated(e.FullPath));
                     isDone = true;
                     _logger.LogInformation("Successfully processed {Event} for file {FilePath}", e.ChangeType, e.FullPath);
                     break;
@@ -115,12 +112,14 @@ public class OutputFileWatcherService : FileWatcherService
         }
     }
 
-    protected override void OnExistingFile(object sender, FileSystemEventArgs e)
+#pragma warning disable VSTHRD100
+    protected override async void OnExistingFile(object sender, FileSystemEventArgs e)
+#pragma warning restore VSTHRD100
     {
         bool? isDone = null;
         try
         {
-            _semaphore.Wait();
+            await _semaphore.WaitAsync();
             switch (e.ChangeType)
             {
                 case WatcherChangeTypes.Created:
@@ -129,8 +128,7 @@ public class OutputFileWatcherService : FileWatcherService
                 case WatcherChangeTypes.Renamed:
                     break;
                 case WatcherChangeTypes.All:
-                    _mediator.Publish(new OutputFileOrchestrator.OutputFileCreated(e.FullPath)).ConfigureAwait(false).GetAwaiter()
-                        .GetResult();
+                    await _mediator.Publish(new OutputFileOrchestrator.OutputFileCreated(e.FullPath));
                     isDone = true;
                     _logger.LogInformation("Successfully processed {Event} for file {FilePath}", e.ChangeType, e.FullPath);
                     break;

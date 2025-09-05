@@ -2,10 +2,10 @@
 
 public class SftpSettings
 {
-    public string Host { get; set; }
+    public required string Host { get; set; }
     public int Port { get; set; }
-    public string Username { get; set; }
-    public string Password { get; set; }
-    public string RemoteDirectory { get; set; }
+    public required string Username { get; set; }
+    public required string Password { get; set; }
+    public required string RemoteDirectory { get; set; }
     public bool UploadZipFile { get; set; }
 }

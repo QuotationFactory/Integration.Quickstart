@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Integration.Common.Serialization;
+﻿using Integration.Common.Serialization;
 using Newtonsoft.Json;
 using Versioned.ExternalDataContracts;
 
@@ -21,7 +19,9 @@ public static class JsonHelper
         var json = File.ReadAllText(jsonFilePath);
 
         // convert json to project object
-        return JsonConvert.DeserializeObject<T>(json, JsonSerializerSettings);
+        var result = JsonConvert.DeserializeObject<T>(json, JsonSerializerSettings);
+        ArgumentNullException.ThrowIfNull(result);
+        return result;
     }
 
     private static JsonSerializerSettings GetJsonSerializerSettings()
