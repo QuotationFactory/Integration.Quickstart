@@ -1,0 +1,41 @@
+{
+    "MessageType": "RequestAddressBookSyncResponse",
+    "DateTime": "2025-09-08T12:26:21.1643798Z",
+    "EventLogs": [{
+        "DateTime": "2025-09-08T12:26:21.1674049Z",
+        "Level": 2,
+        "Message": "This is some random information"
+    }
+    ],
+    "Relations": [{
+        "Id": 1,
+        "Code": "Debtor Code",
+        "CompanyName": "Quotation Factory B.V.",
+        "PostalStreet": "Aalsterweg",
+        "PostalHouseNumber": "262",
+        "PostalZipCode": "5644RK",
+        "PostalCity": "Eindhoven",
+        "PostalStateOrProvince": "Noord-Brabant",
+        "PostalCountryCode": "NL",
+        "PostalCountryName": "Netherlands",
+        "Phone": "+31(0)850047332",
+        "Email": "info@quotationfactory.com",
+        "Website": "https://www.quotationfactory.com",
+        "VatNumber": "",
+        "VatRatio": 21.0,
+        "LanguageCode": "",
+        "SegmentName": "A",
+        "Tags": [],
+        "DeliveryTermsCode": "EXW",
+        "PaymentTermsCode": "60D"
+    }
+    ],
+    "AutoInviteImportRequests": [{
+        "Id": 1,
+        "Code": "Debtor Code",
+        "FirstName": "John",
+        "LastName": "Doe",
+        "Email": "user@example.com"
+    }
+    ]
+}

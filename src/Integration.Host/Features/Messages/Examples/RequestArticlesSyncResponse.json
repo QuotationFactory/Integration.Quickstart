@@ -1,0 +1,41 @@
+{
+    "MessageType": "RequestArticlesSyncResponse",
+    "DateTime": "2025-09-08T12:24:47.0449068Z",
+    "EventLogs": [{
+        "DateTime": "2025-09-08T12:24:47.0468721Z",
+        "Level": 2,
+        "Message": "This is some random information"
+    }
+    ],
+    "Articles": [{
+        "Id": 1,
+        "Code": "ITEM1",
+        "Description": "Item with single price",
+        "Price": 123.45,
+        "CurrencyIsoCode": "EUR",
+        "Quantity": 1.0,
+        "UnitIsoCode": "C62",
+        "ScalePriceUnitIsoCode": "",
+        "ScalePrices": [],
+        "HideInPortal": false
+    }, {
+        "Id": 2,
+        "Code": "ITEM2",
+        "Description": "Item with scaled price",
+        "Price": 0.0,
+        "CurrencyIsoCode": "EUR",
+        "Quantity": 1.0,
+        "UnitIsoCode": "C62",
+        "ScalePriceUnitIsoCode": "C62",
+        "ScalePrices": [{
+            "Price": 200.0,
+            "Quantity": 0.0
+        }, {
+            "Price": 100.0,
+            "Quantity": 50.0
+        }
+        ],
+        "HideInPortal": false
+    }
+    ]
+}
