@@ -9,7 +9,7 @@
     <PackageVersion Include="MetalHeaven.ExternalDataContracts" Version="0.4.106" />
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Include="MediatR" Version="13.0.0" />
+    <PackageVersion Include="MediatR" Version="[12.5.0]" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftExtensionsPatchVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftExtensionsPatchVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MicrosoftExtensionsPatchVersion)" />
