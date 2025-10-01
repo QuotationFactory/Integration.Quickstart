@@ -39,7 +39,6 @@ public class RequestManufacturabilityCheckOfPartTypeMessageHandler : IAgentReque
             ProjectId = msg.ProjectId,
             PartTypeId = msg.PartType.Id,
             IsManufacturable = s_random.NextDouble() >= 0.5,
-            WorkingStepKey = msg.WorkingStepKey,
             EventLogs = new List<EventLog>
             {
                 new()
