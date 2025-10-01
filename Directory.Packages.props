@@ -2,11 +2,11 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <MicrosoftExtensionsVersion>9.0.0</MicrosoftExtensionsVersion>
-    <MicrosoftExtensionsPatchVersion>9.0.8</MicrosoftExtensionsPatchVersion>
+    <MicrosoftExtensionsPatchVersion>9.0.9</MicrosoftExtensionsPatchVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="MetalHeaven.Agent.Shared.External" Version="0.1.46" />
-    <PackageVersion Include="MetalHeaven.ExternalDataContracts" Version="0.4.106" />
+    <PackageVersion Include="MetalHeaven.Agent.Shared.External" Version="0.1.48" />
+    <PackageVersion Include="MetalHeaven.ExternalDataContracts" Version="0.4.108" />
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="MediatR" Version="[12.5.0]" />
