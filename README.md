@@ -49,6 +49,8 @@ The `OutputFileCreatedHandler.cs` class within the example project includes vari
 | `RequestAdditionalCostsOfPartTypeMessage` | `RequestAdditionalCostsOfPartTypeMessageResponse` | Inquires about additional costs associated with manufacturing a particular part type, aiding in financial planning and quotation accuracy. |
 | `ProjectStatusChangedMessage` | None (Echo Message) | Communicates changes in the project status back to the QF platform, updating the current state of the project. |
 | `ChangeProjectOrderNumberMessage` | None (Echo Message) | Allows updating the project order number in the QF platform, reflecting any changes made locally. |
+| `RequestSellingBuyingPartyArticleMessage` | `RequestSellingBuyingPartyArticleMessageResponse` | Syncs selling and buying party article references. |
+| `RequestAutoInviteMessage` | `RequestAutoInviteMessageResponse` | Triggers automatic invite logic for collaborators. |
 
 ## Building Your Integration
 
